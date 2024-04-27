@@ -1,0 +1,9 @@
+<template>
+    <iframe 
+     src="https://player.kick.com/YOUR_USERNAME?muted=true&allowfullscreen=false" 
+     height="720" 
+     width="1280"
+     frameborder="0" 
+     scrolling="no"> 
+</iframe>
+</template>

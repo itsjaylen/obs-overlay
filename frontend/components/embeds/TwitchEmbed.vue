@@ -1,14 +1,20 @@
 <script>
 export default {
-  setup() {
-    const channel = ref('agent00');
+  props: {
+    channelName: {
+      type: String,
+      required: true,
+    },
+  },
+  setup(props) {
+    const channel = ref(props.channelName);
 
     const loadScript = () => {
-      const script = document.createElement('script');
-      script.src = 'https://embed.twitch.tv/embed/v1.js';
+      const script = document.createElement("script");
+      script.src = "https://embed.twitch.tv/embed/v1.js";
       document.body.appendChild(script);
 
-      return new Promise(resolve => script.onload = resolve);
+      return new Promise((resolve) => (script.onload = resolve));
     };
 
     const createTwitchEmbed = async () => {
@@ -27,14 +33,12 @@ export default {
 
     createTwitchEmbed();
 
-
     return {
       channel,
     };
   },
 };
 </script>
-
 
 <style>
 #twitch-embed {

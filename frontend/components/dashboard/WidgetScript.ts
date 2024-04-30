@@ -57,7 +57,7 @@ export default defineComponent({
     },
     deleteItem(index: number): void {
         this.dialog = true
-      //this.items.splice(index, 1);
+      // this.items.splice(index, 1);
     },
     cancelDelete(): void {
       this.dialog = false;

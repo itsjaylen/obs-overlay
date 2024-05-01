@@ -45,33 +45,28 @@
 
     <!-- Upload dialog TODO split up -->
     <v-dialog v-model="dialog_upload" max-width="480">
-      <v-card title="Upload item">
-        <template v-slot:text>
-          <!-- Add functionality and progress bar-->
-          <v-file-input
-            ref="fileInput"
-            multiple
-            chips
-            show-size
-            accept="image/*, video/*"
-            label="File input"
-            variant="solo-filled"
-          ></v-file-input>
+    <v-card>
+      <v-card-title>Upload item</v-card-title>
+      <v-card-text>
+        <v-file-input
+          ref="fileInput"
+          v-model="selectedFiles"
+          multiple
+          chips
+          show-size
+          accept="image/*, video/*"
+          label="File input"
+          variant="solo-filled"
+        ></v-file-input>
+      </v-card-text>
 
-          <v-btn @click="uploadFiles">Upload</v-btn>
-        </template>
-
-        <v-card-actions>
-          <v-spacer></v-spacer>
-
-          <v-btn
-            text="Close"
-            variant="text"
-            @click="dialog_upload = false"
-          ></v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn @click="uploadFiles">Upload</v-btn>
+        <v-btn text @click="dialog_upload = false">Close</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 
     <!-- Objects -->
     <v-list-item
@@ -127,5 +122,6 @@ import WidgetScript from "./WidgetScript.ts";
 
 export default {
   ...WidgetScript,
+  
 };
 </script>

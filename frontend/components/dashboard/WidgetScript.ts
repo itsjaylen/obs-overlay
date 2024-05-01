@@ -1,3 +1,5 @@
+import axios from "axios";
+
 interface Item {
   title: string;
   icon: string;
@@ -12,6 +14,7 @@ export default defineComponent({
       dialog: false,
       dialog_create: false,
       dialog_upload: false,
+      selectedFiles: [],
       items: <Item[]>[
         {
           title: "Example Item 1",
@@ -41,11 +44,11 @@ export default defineComponent({
       });
     },
     createItem(): void {
-        this.dialog_create = true
+      this.dialog_create = true;
     },
     uploadItem(): void {
-        this.dialog_upload = true
-        this.dialog_create = false
+      this.dialog_upload = true;
+      this.dialog_create = false;
     },
     toggleVisibility(index: number): void {
       this.items[index].isVisible = !this.items[index].isVisible;
@@ -56,7 +59,7 @@ export default defineComponent({
         this.items[index].lockIcon === "mdi-lock" ? "mdi-lock-off" : "mdi-lock";
     },
     deleteItem(index: number): void {
-        this.dialog = true
+      this.dialog = true;
       // this.items.splice(index, 1);
     },
     cancelDelete(): void {
@@ -66,9 +69,28 @@ export default defineComponent({
       this.dialog = false;
       this.items.splice(index, 1);
     },
-    handleFileUpload(event: { target: { files: any; }; }): void {
-        const files = event.target.files;
-        console.log(files);
-    }
+    uploadFiles(): void {
+      this.selectedFiles.forEach((file: File) => {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        axios
+          .post("http://localhost:9191/upload", formData, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          })
+          .then((response) => {
+            console.log("File uploaded:", response.data);
+            this.dialog_upload = false;
+          })
+          .catch((error) => {
+            console.error("Error uploading file:", error);
+          });
+      });
+
+      // Optionally, clear selected files after uploading
+      this.selectedFiles = [];
+    },
   },
 });

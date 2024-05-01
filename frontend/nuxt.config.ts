@@ -6,11 +6,7 @@ export default defineNuxtConfig({
     transpile: ["vuetify"],
   },
 
-  modules: [
-    // ...
-  ],
+  modules: [],
 
   plugins: [],
-  
-  },
-);
+});

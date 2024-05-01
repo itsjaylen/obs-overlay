@@ -1,8 +1,13 @@
 <template>
   <v-navigation-drawer>
-    <v-list-item
-      title="Elements Controller"
-      subtitle="Stream Preview"
+    <v-list-item title="Elements Controller" subtitle="Stream Preview">
+      <v-btn
+        size="small"
+        class="ma-2 d-flex justify-center"
+        color="blue"
+        icon="mdi-wrench"
+        @click="console.log('Settings clicked')"
+      ></v-btn
     ></v-list-item>
     <v-divider></v-divider>
 
@@ -123,7 +128,7 @@
 import Widgets from "~/components/dashboard/Widgets.vue";
 export default {
   components: {
-    Widgets
+    Widgets,
   },
   data() {
     return {

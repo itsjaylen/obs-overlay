@@ -71,11 +71,13 @@ export default defineComponent({
     },
     uploadFiles(): void {
       this.selectedFiles.forEach((file: File) => {
+        const runtimeConfig = useRuntimeConfig();
+
         const formData = new FormData();
         formData.append("file", file);
 
         axios
-          .post("http://localhost:9191/upload", formData, {
+          .post(`${runtimeConfig.public.apiBase}/upload`, formData, {
             headers: {
               "Content-Type": "multipart/form-data",
             },
@@ -89,7 +91,6 @@ export default defineComponent({
           });
       });
 
-      // Optionally, clear selected files after uploading
       this.selectedFiles = [];
     },
   },

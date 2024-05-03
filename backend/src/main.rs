@@ -4,26 +4,28 @@ use futures_util::TryStreamExt;
 use serde_json::json;
 use std::fs;
 use std::io;
-use std::path::Path;
 use tokio::fs as tokio_fs;
 use tokio::io::AsyncWriteExt;
 
 #[actix_web::main]
-async fn main() -> io::Result<()> {
-    if !Path::new("./upload").exists() {
-        tokio_fs::create_dir("./upload").await?;
+async fn main() -> std::io::Result<()> {
+    if !std::path::Path::new("./upload").exists() {
+        tokio::fs::create_dir("./upload").await?;
     }
+
+    let port: u16 = match std::env::var("PORT") {
+        Ok(port_str) => port_str.parse().expect("PORT must be a valid u16"),
+        Err(_) => 9191,
+    };
 
     HttpServer::new(|| {
         App::new()
-            .wrap(
-                Cors::permissive(), // Use permissive() instead of new()
-            )
+            .wrap(Cors::permissive())
             .route("/", web::get().to(root))
             .route("/upload", web::post().to(upload))
-            .route("/files", web::get().to(list_files)) // New route for listing files
+            .route("/files", web::get().to(list_files))
     })
-    .bind(("127.0.0.1", 9191))?
+    .bind(("0.0.0.0", port))?
     .run()
     .await
 }
@@ -39,7 +41,7 @@ async fn upload(mut payload: actix_multipart::Multipart, req: HttpRequest) -> Ht
     };
 
     let max_file_count: usize = 3;
-    let max_file_size: usize = 10_000_000; // Increased file size limit
+    let max_file_size: usize = 10_000_000;
 
     if content_length > max_file_size {
         return HttpResponse::BadRequest().finish();

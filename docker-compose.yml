@@ -5,9 +5,39 @@ services:
     container_name: "ObsDatabase"
     restart: always
     env_file:
-      - .env  
+      - .env
     ports:
       - "${DATABASE_PORT}:5432"
     volumes:
       - ./obs-database/data:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  backend:
+    image: rust:latest
+    container_name: "ObsBackend"
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "${PORT}:9191"
+    volumes:
+      - uploads:/uploads
+    depends_on:
+      - database
+
+  nginx:
+    image: nginx:latest
+    container_name: "ObsCDN"
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "${PORT}:80"
+    volumes:
+      - uploads:/uploads
+    depends_on:
+      - backend
+
+
+volumes:
+  uploads:

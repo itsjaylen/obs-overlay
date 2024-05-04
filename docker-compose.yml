@@ -30,9 +30,9 @@ services:
     container_name: "ObsCDN"
     restart: always
     env_file:
-      - ./services/nginx/.env
+      - .env
     ports:
-      - "${PORT}:80"
+      - "${NGINX_PORT}:80"
     volumes:
       - uploads:/uploads
     depends_on:

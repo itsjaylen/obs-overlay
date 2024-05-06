@@ -1,6 +1,10 @@
 FROM rust:latest
 
+WORKDIR /usr/src/backend
 
-COPY ./ ./
+COPY . .
 
-CMD cargo build --release && cargo run
+RUN cargo build
+
+
+CMD cargo run

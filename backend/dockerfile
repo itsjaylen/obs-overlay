@@ -6,4 +6,4 @@ COPY . .
 
 RUN cargo build --release
 
-CMD cargo run --quiet
+CMD cargo run

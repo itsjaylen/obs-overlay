@@ -15,7 +15,10 @@ async fn main() -> std::io::Result<()> {
 
     let port: u16 = match std::env::var("PORT") {
         Ok(port_str) => port_str.parse().expect("PORT must be a valid u16"),
-        Err(_) => 9191,
+        Err(_) => {
+            println!("No PORT environment variable set, using default port 9191");
+            9191
+        }
     };
 
     HttpServer::new(|| {
@@ -29,6 +32,7 @@ async fn main() -> std::io::Result<()> {
     .run()
     .await
 }
+
 
 async fn root() -> String {
     "Server is up and running.".to_string()

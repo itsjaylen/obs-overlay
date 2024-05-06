@@ -13,7 +13,7 @@ services:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 
   backend:
-    image: rust:latest
+    build: .
     container_name: "ObsBackend"
     restart: always
     env_file:
@@ -21,7 +21,7 @@ services:
     ports:
       - "${BACKEND_PORT}:9191"
     volumes:
-      - uploads:/uploads
+      - ./upload:/usr/src/app/upload
     depends_on:
       - database
 

@@ -1,6 +1,5 @@
 FROM rust:latest
 
-WORKDIR /src/app
 
 COPY ./ ./
 

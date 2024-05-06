@@ -19,7 +19,7 @@ services:
     env_file:
       - .env
     ports:
-      - "${PORT}:9191"
+      - "${BACKEND_PORT}:9191"
     volumes:
       - uploads:/uploads
     depends_on:

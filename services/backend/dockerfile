@@ -1,17 +1,8 @@
-# Use the rust base image
+# Use a Rust base image
 FROM rust:latest as builder
 
 # Set working directory
 WORKDIR /usr/src/app
-
-# Copy the dependencies file
-COPY Cargo.toml Cargo.lock ./
-
-# Build dependencies (cached)
-RUN mkdir src && \
-    echo "fn main() {}" > src/main.rs && \
-    cargo build --release && \
-    rm -f target/release/deps/obs-overlay-backend*
 
 # Copy the source code
 COPY . .
@@ -19,15 +10,13 @@ COPY . .
 # Build the application
 RUN cargo build --release
 
-# Create the final lightweight image
+# Create a final lightweight image
 FROM debian:buster-slim
-WORKDIR /usr/src/app
 
-# Copy the built executable
-COPY --from=builder /usr/src/app/target/release/obs-overlay-backend .
+# Install required dependencies (if any)
 
-# Expose the port
-EXPOSE 9191
+# Copy the built executable from the builder stage
+COPY --from=builder /usr/src/app/target/release/obs-overlay-backend /usr/local/bin/
 
-# Run the application
-CMD ["./obs-overlay-backend"]
+# Set the entrypoint for running the binary
+CMD ["obs-overlay-backend"]

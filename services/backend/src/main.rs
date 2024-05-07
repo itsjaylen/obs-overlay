@@ -4,35 +4,29 @@ use futures_util::TryStreamExt;
 use serde_json::json;
 use std::fs;
 use std::io;
+use std::path::Path;
 use tokio::fs as tokio_fs;
 use tokio::io::AsyncWriteExt;
 
 #[actix_web::main]
-async fn main() -> std::io::Result<()> {
-    if !std::path::Path::new("./upload").exists() {
-        tokio::fs::create_dir("./upload").await?;
+async fn main() -> io::Result<()> {
+    if !Path::new("./upload").exists() {
+        tokio_fs::create_dir("./upload").await?;
     }
-
-    let port: u16 = match std::env::var("PORT") {
-        Ok(port_str) => port_str.parse().expect("PORT must be a valid u16"),
-        Err(_) => {
-            println!("No PORT environment variable set, using default port 9191");
-            9191
-        }
-    };
 
     HttpServer::new(|| {
         App::new()
-            .wrap(Cors::permissive())
+            .wrap(
+                Cors::permissive(), // Use permissive() instead of new()
+            )
             .route("/", web::get().to(root))
             .route("/upload", web::post().to(upload))
-            .route("/files", web::get().to(list_files))
+            .route("/files", web::get().to(list_files)) // New route for listing files
     })
-    .bind(("0.0.0.0", port))?
+    .bind(("127.0.0.1", 9191))?
     .run()
     .await
 }
-
 
 async fn root() -> String {
     "Server is up and running.".to_string()
@@ -45,7 +39,7 @@ async fn upload(mut payload: actix_multipart::Multipart, req: HttpRequest) -> Ht
     };
 
     let max_file_count: usize = 3;
-    let max_file_size: usize = 10_000_000;
+    let max_file_size: usize = 10_000_000; // Increased file size limit
 
     if content_length > max_file_size {
         return HttpResponse::BadRequest().finish();
@@ -53,39 +47,27 @@ async fn upload(mut payload: actix_multipart::Multipart, req: HttpRequest) -> Ht
 
     let dir: &str = "./upload/";
 
-    let mut uploaded_files = Vec::new();
     let mut current_count: usize = 0;
     while current_count < max_file_count {
         if let Some(mut field) = payload.try_next().await.unwrap() {
-            // Extract filename outside of the loop to satisfy borrow checker
             let filename = match field.content_disposition().get_filename() {
-                Some(name) => name.to_owned(),
-                None => "unknown_file".to_owned(),
+                Some(name) => name,
+                None => "unknown_file",
             };
-    
-            let destination = format!("{}{}", dir, &filename);
-    
+            let destination = format!("{}{}", dir, filename);
+
             let mut saved_file = tokio_fs::File::create(&destination).await.unwrap();
             while let Some(chunk) = field.try_next().await.unwrap() {
                 saved_file.write_all(&chunk).await.unwrap();
             }
-            uploaded_files.push(filename);
             current_count += 1;
         } else {
             break;
         }
     }
-    
 
-    if uploaded_files.is_empty() {
-        // No files were uploaded
-        HttpResponse::BadRequest().body("No files were uploaded")
-    } else {
-        // Files were uploaded successfully
-        HttpResponse::Ok().body(format!("Uploaded files: {:?}", uploaded_files))
-    }
+    HttpResponse::Ok().finish()
 }
-
 
 async fn list_files() -> Result<HttpResponse, io::Error> {
     let dir = "./upload";

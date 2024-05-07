@@ -11,7 +11,7 @@ COPY . .
 RUN cargo build --release
 
 # Create a final lightweight image
-FROM debian:buster-slim
+FROM debian:bullseye-slim
 
 # Install required dependencies (if any)
 

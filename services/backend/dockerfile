@@ -1,12 +1,5 @@
 # Use a Rust base image
 FROM rust:latest as builder
-# Create a final lightweight image
-FROM debian:bullseye-slim
-
-COPY --from=ubi /usr/lib64/libgcc_s.so.1 /usr/lib64/libgcc_s.so.1
-COPY --from=ubi /usr/lib64/libstdc++.so.6 /usr/lib64/libstdc++.so.6
-COPY --from=ubi /usr/lib64/libz.so.1 /usr/lib64/libz.so.1
-
 
 # Set working directory
 WORKDIR /usr/src/app
@@ -20,7 +13,8 @@ RUN apt-get update && apt-get install -y libc6
 # Build the application
 RUN cargo build --release
 
-
+# Create a final lightweight image
+FROM  debian:bullseye
 
 
 # Copy the built executable from the builder stage

@@ -18,5 +18,8 @@ FROM debian:latest
 # Copy the built executable from the builder stage
 COPY --from=builder /usr/src/app/target/release/obs-overlay-backend /usr/local/bin/
 
+# Give right perms
+RUN chmod -R 777 /usr/src/app/upload
+
 # Set the entrypoint for running the binary
 CMD ["obs-overlay-backend"]

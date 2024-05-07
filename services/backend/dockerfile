@@ -7,13 +7,15 @@ WORKDIR /usr/src/app
 # Copy the source code
 COPY . .
 
+# Install required dependencies
+RUN apt-get update && apt-get install -y libc6
+
 # Build the application
 RUN cargo build --release
 
 # Create a final lightweight image
 FROM debian:bullseye-slim
 
-# Install required dependencies (if any)
 
 # Copy the built executable from the builder stage
 COPY --from=builder /usr/src/app/target/release/obs-overlay-backend /usr/local/bin/

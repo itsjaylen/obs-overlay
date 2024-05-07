@@ -53,27 +53,39 @@ async fn upload(mut payload: actix_multipart::Multipart, req: HttpRequest) -> Ht
 
     let dir: &str = "./upload/";
 
+    let mut uploaded_files = Vec::new();
     let mut current_count: usize = 0;
     while current_count < max_file_count {
         if let Some(mut field) = payload.try_next().await.unwrap() {
+            // Extract filename outside of the loop to satisfy borrow checker
             let filename = match field.content_disposition().get_filename() {
-                Some(name) => name,
-                None => "unknown_file",
+                Some(name) => name.to_owned(),
+                None => "unknown_file".to_owned(),
             };
-            let destination = format!("{}{}", dir, filename);
-
+    
+            let destination = format!("{}{}", dir, &filename);
+    
             let mut saved_file = tokio_fs::File::create(&destination).await.unwrap();
             while let Some(chunk) = field.try_next().await.unwrap() {
                 saved_file.write_all(&chunk).await.unwrap();
             }
+            uploaded_files.push(filename);
             current_count += 1;
         } else {
             break;
         }
     }
+    
 
-    HttpResponse::Ok().finish()
+    if uploaded_files.is_empty() {
+        // No files were uploaded
+        HttpResponse::BadRequest().body("No files were uploaded")
+    } else {
+        // Files were uploaded successfully
+        HttpResponse::Ok().body(format!("Uploaded files: {:?}", uploaded_files))
+    }
 }
+
 
 async fn list_files() -> Result<HttpResponse, io::Error> {
     let dir = "./upload";

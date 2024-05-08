@@ -34,8 +34,7 @@ services:
     ports:
       - "${NGINX_PORT}:80"
     volumes:
-      - ./upload:/upload # Mount the uploads directory from the backend service
-      - ./services/nginx/images:/usr/share/nginx/html/images
+      - ./upload:/usr/src/app/upload
       - ./services/nginx/images:/usr/share/nginx/html/images
     depends_on:
       - backend

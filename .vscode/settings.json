@@ -1,0 +1,5 @@
+{
+    "rust-analyzer.linkedProjects": [
+        "/home/jaylen/Projects/obs-overlay/services/backend/Cargo.toml"
+    ]
+}

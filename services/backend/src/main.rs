@@ -1,5 +1,6 @@
  use actix_cors::Cors;
 use actix_web::{web, App, HttpRequest, HttpResponse, HttpServer};
+use actix_files;
 use futures_util::TryStreamExt;
 use serde_json::json;
 use std::fs;
@@ -9,8 +10,8 @@ use tokio::io::AsyncWriteExt;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    if !std::path::Path::new("./upload").exists() {
-        tokio::fs::create_dir("./upload").await?;
+    if !std::path::Path::new("./images").exists() {
+        tokio::fs::create_dir("./images").await?;
     }
 
     let port: u16 = match std::env::var("PORT") {
@@ -23,10 +24,13 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(|| {
         App::new()
-            .wrap(Cors::permissive())
-            .route("/", web::get().to(root))
-            .route("/upload", web::post().to(upload))
-            .route("/files", web::get().to(list_files))
+    .wrap(Cors::permissive())
+    .service(actix_files::Files::new("/static", "./static").show_files_listing()) // for other static files
+    .service(actix_files::Files::new("/images", "./images").show_files_listing()) // for images
+    .route("/", web::get().to(root))
+    .route("/upload", web::post().to(upload))
+    .route("/files", web::get().to(list_files))
+
     })
     .bind(("0.0.0.0", port))?
     .run()
@@ -51,7 +55,7 @@ async fn upload(mut payload: actix_multipart::Multipart, req: HttpRequest) -> Ht
         return HttpResponse::BadRequest().finish();
     }
 
-    let dir: &str = "./upload/";
+    let dir: &str = "./images/";
 
     let mut current_count: usize = 0;
     while current_count < max_file_count {
@@ -76,7 +80,7 @@ async fn upload(mut payload: actix_multipart::Multipart, req: HttpRequest) -> Ht
 }
 
 async fn list_files() -> Result<HttpResponse, io::Error> {
-    let dir = "./upload";
+    let dir = "./images";
     let mut files = Vec::new();
 
     // Read directory and collect filenames

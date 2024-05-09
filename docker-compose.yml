@@ -21,7 +21,7 @@ services:
     ports:
       - "${BACKEND_PORT}:9191"
     volumes:
-      - ./upload:/usr/src/app/upload
+      - ./images:/usr/src/app/images
     depends_on:
       - database
 

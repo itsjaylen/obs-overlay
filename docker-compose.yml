@@ -33,8 +33,8 @@ services:
       - "6379:6379"
     volumes:
       - ./redis-data:/data
-    environment:
-      - REDIS_PASSWORD=T@Nm{q%?w[vS,)hDJby#4x
+      - ./redis/redis.conf:/usr/local/etc/redis/redis.conf   # Adjusted volume path
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
 
 volumes:
   assets:

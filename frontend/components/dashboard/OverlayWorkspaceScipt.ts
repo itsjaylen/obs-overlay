@@ -49,6 +49,17 @@ export default {
         clientRotation: 0,
         visible: true,
       },
+      {
+        id: 4,
+        imageUrl:
+          "http://0.0.0.0:9191/assets/kissy.gif",
+        clientX: 0,
+        clientY: 0,
+        scaleX: 0.1,
+        scaleY: 0.1,
+        clientRotation: 0,
+        visible: true,
+      },
     ];
 
     const onDrag = (event: {

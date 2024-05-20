@@ -21,10 +21,10 @@ services:
     ports:
       - "${BACKEND_PORT}:9191"
     volumes:
-      - ./images:/usr/src/app/images
+      - ./assets:/usr/src/app/assets
     depends_on:
       - database
 
 
 volumes:
-  images:
+  assets:

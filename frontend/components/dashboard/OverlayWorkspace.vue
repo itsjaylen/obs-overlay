@@ -5,6 +5,7 @@
         v-for="target in targets"
         :key="target.id"
         :src="target.imageUrl"
+        alt="Image"
         :class="'target target' + target.id"
         :style="{
           transform: getTargetTransform(target.id),

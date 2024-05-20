@@ -24,7 +24,13 @@ services:
       - ./assets:/usr/src/app/assets
     depends_on:
       - database
-
+  redis:
+    image: redis
+    container_name: ObsRedis
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redis-data:/data
 
 volumes:
   assets:

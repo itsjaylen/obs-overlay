@@ -8,7 +8,6 @@ use crate::handlers::{
 
 pub async fn on_upload(filename: String) {
     println!("File '{}' uploaded successfully.", filename);
-
     let type_str = if is_gif_file(&filename, GIF_EXTENSION) {
         "gif"
     } else if is_image_file(&filename, IMAGE_EXTENSIONS) {
@@ -37,4 +36,6 @@ pub async fn on_upload(filename: String) {
         Ok(rows) => println!("Successfully inserted {} row(s)", rows),
         Err(e) => println!("Error inserting object: {}", e),
     }
+
+    
 }

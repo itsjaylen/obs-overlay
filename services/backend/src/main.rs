@@ -1,8 +1,8 @@
 use actix_cors::Cors;
 use actix_files;
 use actix_web::{web, App, HttpResponse, HttpServer};
-use handlers::
-    server::files::{delete_file, list_files, update_file, upload}
+use handlers::{database::redis_db::redis_test, 
+    server::files::{delete_file, list_files, update_file, upload}}
 ;
 use std::path::Path;
 use tokio::fs as tokio_fs;
@@ -11,7 +11,7 @@ pub mod handlers;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    
+    let _ = redis_test().await;
 
     if !Path::new("./assets/").exists() {
         tokio_fs::create_dir_all("./assets/").await?;

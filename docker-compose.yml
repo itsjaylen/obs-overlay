@@ -2,12 +2,29 @@ version: "3"
 services:
   database:
     image: postgres:latest
-    container_name: "database"
+    container_name: "ObsDatabase"
     restart: always
     env_file:
-      - .env  
+      - .env
     ports:
-      - "5434:5432"
+      - "${DATABASE_PORT}:5432"
     volumes:
-      - ./database/data:/var/lib/postgresql/data
+      - ./obs-database/data:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  backend:
+    build: ./services/backend # Specify the path to your backend Dockerfile
+    container_name: "ObsBackend"
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "${BACKEND_PORT}:9191"
+    volumes:
+      - ./assets:/usr/src/app/assets
+    depends_on:
+      - database
+
+
+volumes:
+  assets:

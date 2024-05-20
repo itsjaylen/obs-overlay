@@ -1,4 +1,4 @@
--- Create the object table
+-- Your SQL goes here
 CREATE TABLE object (
     id SERIAL PRIMARY KEY,
     url VARCHAR(255) NOT NULL,

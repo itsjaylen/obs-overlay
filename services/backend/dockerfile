@@ -1,0 +1,23 @@
+# Use a Rust base image for the build stage
+FROM rust:latest as builder
+
+# Set working directory
+WORKDIR /usr/src/app
+
+# Copy the source code
+COPY . .
+
+# Build the application
+RUN cargo build --release
+
+# Create a final lightweight image
+FROM debian:latest
+
+# Install required dependencies (if any)
+
+# Copy the built executable from the builder stage
+COPY --from=builder /usr/src/app/target/release/obs-overlay-backend /usr/local/bin/
+
+
+# Set the entrypoint for running the binary
+CMD ["obs-overlay-backend"]

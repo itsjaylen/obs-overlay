@@ -1,13 +1,20 @@
+use std::error::Error;
+
 use crate::handlers::{
-    database::database::Database,
+    database::{database::Database, redis_db::RedisDatabase},
     server::utils::{
         constants::{GIF_EXTENSION, IMAGE_EXTENSIONS},
         file_utils::{is_gif_file, is_image_file},
     },
 };
+use redis::AsyncCommands;
 
-pub async fn on_upload(filename: String) {
+pub async fn on_upload(filename: String) -> Result<(), Box<dyn Error + Send + Sync>> {
     println!("File '{}' uploaded successfully.", filename);
+
+    let redis_database = RedisDatabase::new();
+    let mut connection = redis_database.get_connection().await?;
+
     let type_str = if is_gif_file(&filename, GIF_EXTENSION) {
         "gif"
     } else if is_image_file(&filename, IMAGE_EXTENSIONS) {
@@ -33,9 +40,45 @@ pub async fn on_upload(filename: String) {
         .await;
 
     match result {
-        Ok(rows) => println!("Successfully inserted {} row(s)", rows),
+        Ok(rows) => {
+            println!("Successfully inserted {} row(s)", rows);
+
+            // Fetch the newly inserted object
+            let object = db.fetch_object_by_filename(&filename).await?;
+
+            // Extract URL from JSON
+            if let ref url = object.url {
+                // Remove the URL from the parsed JSON object
+                let mut object_without_url = serde_json::to_value(&object)?;
+                object_without_url.as_object_mut().unwrap().remove("url");
+
+                // Using a hash to store nested keys
+                let main_key = format!("object:{}", url);
+
+                // Set values in the hash using composite keys for the nested structure
+                for (key, value) in object_without_url.as_object().unwrap().iter() {
+                    let field_name = format!("{}", key);
+                    match value {
+                        serde_json::Value::String(s) => {
+                            connection.hset(&main_key, &field_name, s).await?;
+                        }
+                        _ => {
+                            connection
+                                .hset(&main_key, &field_name, value.to_string())
+                                .await?;
+                        }
+                    }
+                }
+
+                // Set the TTL for the main_key
+                connection.expire(&main_key, 300).await?;
+            } else {
+                println!("Object has no URL.");
+            }
+
+        }
         Err(e) => println!("Error inserting object: {}", e),
     }
 
-    
+    Ok(())
 }

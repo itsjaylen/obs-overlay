@@ -5,7 +5,7 @@ use super::schema::object;
 
 
 
-#[derive(Queryable, Selectable, Serialize, Deserialize)]
+#[derive(Queryable, Selectable, Serialize, Deserialize, Debug, Clone)]
 #[diesel(table_name = object)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Object {

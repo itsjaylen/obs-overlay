@@ -1,18 +1,38 @@
-use redis::{Client, AsyncCommands};
+use percent_encoding::{utf8_percent_encode, NON_ALPHANUMERIC};
+use redis::{aio::MultiplexedConnection, Client};
+use std::sync::Arc;
+use tokio::sync::Mutex;
 
+pub struct RedisDatabase {
+    pool: Arc<Mutex<Vec<MultiplexedConnection>>>,
+    client: Client,
+}
 
-pub async fn redis_test() -> Result<(), redis::RedisError> {
-    // Connect to the Redis server
-    let client = Client::open("redis://18.217.161.135").unwrap();
-    let mut con = client.get_multiplexed_async_connection().await?;
+impl RedisDatabase {
+    // Create a new instance of Database
+    pub fn new() -> Self {
+        let encoded_password =
+            utf8_percent_encode("T@Nm{q%?w[vS,)hDJby#4x", NON_ALPHANUMERIC).to_string();
+        let client = Client::open(format!("redis://:{}@18.217.161.135", encoded_password))
+            .expect("Failed to create Redis client");
+        let pool = Arc::new(Mutex::new(Vec::new()));
+        RedisDatabase { pool, client }
+    }
 
-    // Use the connection to send commands
-    redis::cmd("SET").arg("my_key").arg(42);
+    // Get a connection from the pool
+    pub async fn get_connection(&self) -> redis::RedisResult<MultiplexedConnection> {
+        let mut pool = self.pool.lock().await;
+        if let Some(conn) = pool.pop() {
+            return Ok(conn);
+        }
 
-    let _: () = con.set("my_key", "hello world").await?;
-    let value: String = con.get("my_key").await?;
+        // If the pool is empty, create a new connection
+        self.client.get_multiplexed_async_connection().await
+    }
 
-    println!("Value of my_key: {}", value);
-
-    Ok(())
+    // Return a connection to the pool
+    pub async fn return_connection(&self, conn: MultiplexedConnection) {
+        let mut pool = self.pool.lock().await;
+        pool.push(conn);
+    }
 }

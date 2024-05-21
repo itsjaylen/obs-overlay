@@ -6,7 +6,7 @@ use std::env;
 
 use crate::handlers::database::models::NewObject;
 
-use super::models::UpdatedObject;
+use super::models::{Object, UpdatedObject};
 
 // Configure r2d2 pool for PgConnection
 type PgPool = Pool<ConnectionManager<PgConnection>>;
@@ -85,4 +85,26 @@ impl Database {
 
         diesel::delete(object.filter(url.eq(&url_str))).execute(&mut conn)
     }
+
+    pub async fn show_all_objects(&self) -> Vec<Object> {
+        use crate::handlers::database::schema::object::dsl::*;
+
+        let mut conn = self.pool.get().expect("Failed to get connection from pool");
+
+        object
+            .select(Object::as_select())
+            .load::<Object>(&mut conn)
+            .expect("Error loading tasks")
+    }
+
+    pub async fn fetch_object_by_filename(&self, filename: &str) -> Result<Object, Error> {
+        use crate::handlers::database::schema::object::dsl::*;
+
+        let mut conn = self.pool.get().expect("Failed to get connection from pool");
+
+        object
+            .filter(url.eq(filename))
+            .first::<Object>(&mut conn)
+    }
+
 }

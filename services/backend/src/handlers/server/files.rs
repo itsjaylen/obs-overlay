@@ -3,8 +3,8 @@ use actix_web::{HttpRequest, HttpResponse};
 use futures_util::TryStreamExt;
 use serde_json::json;
 use std::io;
-use tokio::fs as tokio_fs;
 use tokio::io::AsyncWriteExt;
+use tokio::{fs as tokio_fs, task};
 
 use crate::handlers::database::models::UpdatedObject;
 use crate::handlers::server::events::on_delete::on_delete;
@@ -13,6 +13,8 @@ use crate::handlers::server::events::on_upload::on_upload;
 use crate::handlers::server::utils::parse::{
     parse_multipart_data, parse_optional_bool, parse_optional_int,
 };
+
+use super::events::tasks::redis_tasks::update_expired_keys;
 
 pub async fn upload(mut payload: Multipart, req: HttpRequest) -> HttpResponse {
     let content_length: usize = req
@@ -44,7 +46,7 @@ pub async fn upload(mut payload: Multipart, req: HttpRequest) -> HttpResponse {
                 .await
                 .unwrap_or_else(|_| panic!("Failed to create file: {}", filename));
 
-            on_upload(filename.to_owned()).await;
+            let _ = on_upload(filename.to_owned()).await;
 
             while let Some(chunk) = field.try_next().await.unwrap() {
                 saved_file.write_all(&chunk).await.unwrap();
@@ -122,12 +124,21 @@ pub async fn update_file(mut payload: Multipart, _req: HttpRequest) -> HttpRespo
             rotationposition: data.get("rotationposition").map(|s| s.to_string()),
         };
 
-        println!("{:?}", updated_object);
-
         on_update(updated_object.url.to_string(), updated_object).await;
 
         HttpResponse::Ok().finish()
     } else {
         HttpResponse::BadRequest().body("URL is required")
     }
+}
+
+pub async fn force_update_keys() -> HttpResponse {
+    // Spawn a new task to update expired keys
+    task::spawn(async {
+        if let Err(e) = update_expired_keys().await {
+            eprintln!("Failed to update expired keys: {}", e);
+        }
+    });
+
+    HttpResponse::Ok().body("Redis keys has been force updated.")
 }

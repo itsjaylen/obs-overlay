@@ -8,7 +8,6 @@ pub async fn on_run() -> Result<(), Box<dyn Error + Send + Sync>> {
     let all_objects = db.show_all_objects().await;
     let redis_database = RedisDatabase::new();
 
-    // Get a connection from the pool
     let mut connection = redis_database.get_connection().await?;
 
     // Iterate over each object in the array

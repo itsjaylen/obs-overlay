@@ -1,5 +1,5 @@
 use percent_encoding::{utf8_percent_encode, NON_ALPHANUMERIC};
-use redis::{aio::MultiplexedConnection, Client};
+use redis::{aio::MultiplexedConnection, AsyncCommands, Client};
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
@@ -35,4 +35,14 @@ impl RedisDatabase {
         let mut pool = self.pool.lock().await;
         pool.push(conn);
     }
+
+     // Delete a key from the Redis database
+     pub async fn delete_key(&self, key: &str) -> redis::RedisResult<()> {
+        let mut conn = self.get_connection().await?;
+        let result = conn.del(key).await;
+        self.return_connection(conn).await;
+        result
+    }
+
+    
 }

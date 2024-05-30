@@ -4,3 +4,5 @@ upload/
 assets/
 .venv/
 .env
+.backups/
+.VSCodeCounter/

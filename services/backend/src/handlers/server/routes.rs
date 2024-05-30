@@ -1,12 +1,16 @@
 use actix_multipart::Multipart;
+use actix_web::cookie::Cookie;
 use actix_web::{HttpRequest, HttpResponse};
 use futures_util::TryStreamExt;
+use redis::AsyncCommands;
 use serde_json::json;
+use std::collections::HashMap;
 use std::io;
 use tokio::io::AsyncWriteExt;
 use tokio::{fs as tokio_fs, task};
 
 use crate::handlers::database::models::UpdatedObject;
+use crate::handlers::database::redis_db::RedisDatabase;
 use crate::handlers::server::events::on_delete::on_delete;
 use crate::handlers::server::events::on_update::on_update;
 use crate::handlers::server::events::on_upload::on_upload;
@@ -133,7 +137,6 @@ pub async fn update_file(mut payload: Multipart, _req: HttpRequest) -> HttpRespo
 }
 
 pub async fn force_update_keys() -> HttpResponse {
-    // Spawn a new task to update expired keys
     task::spawn(async {
         if let Err(e) = update_expired_keys().await {
             eprintln!("Failed to update expired keys: {}", e);
@@ -141,4 +144,45 @@ pub async fn force_update_keys() -> HttpResponse {
     });
 
     HttpResponse::Ok().body("Redis keys has been force updated.")
+}
+
+pub async fn get_objects() -> Result<HttpResponse, io::Error> {
+    let redis_database = RedisDatabase::new();
+    let mut connection = redis_database.get_connection().await.map_err(|e| {
+        eprintln!("Failed to get Redis connection: {}", e);
+        io::Error::new(io::ErrorKind::Other, "Failed to get Redis connection")
+    })?;
+
+    let pattern = "object:*";
+
+    let keys: Vec<String> = connection.keys(pattern).await.map_err(|e| {
+        eprintln!("Failed to fetch keys: {}", e);
+        io::Error::new(io::ErrorKind::Other, "Failed to fetch keys from Redis")
+    })?;
+
+    let mut objects = Vec::new();
+    for key in keys {
+        match connection.hgetall::<_, HashMap<String, String>>(&key).await {
+            Ok(mut fields) => {
+                let stripped_key = key.trim_start_matches("object:");
+                fields.insert("__key".to_string(), stripped_key.to_string());
+                objects.push(fields);
+            }
+            Err(e) => eprintln!("Failed to fetch object for key '{}': {}", key, e),
+        }
+    }
+
+    let response_body = serde_json::to_string(&objects).map_err(|e| {
+        eprintln!("Failed to serialize objects to JSON: {}", e);
+        io::Error::new(io::ErrorKind::Other, "Failed to serialize objects to JSON")
+    })?;
+
+    let cookie = Cookie::build("cookie_name", "cookie_value")
+        .path("/")
+        .finish();
+
+    Ok(HttpResponse::Ok()
+        .content_type("application/json")
+        .cookie(cookie)
+        .body(response_body))
 }

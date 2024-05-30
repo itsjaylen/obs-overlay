@@ -35,10 +35,13 @@
   </div>
 </template>
 
+
 <script>
 import OverlayWorkspaceScript from "./OverlayWorkspaceScipt.ts";
+import OverlayObjects from "./scripts/OverlayObjects.ts";
 
 export default {
   ...OverlayWorkspaceScript,
+  ...OverlayObjects,
 };
 </script>

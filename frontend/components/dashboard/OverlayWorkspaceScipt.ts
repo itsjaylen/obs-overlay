@@ -100,7 +100,7 @@ export default {
       },
       {
         imageUrl:
-          "https://img.soap2day.rs/xxrz/400x400/100/68/b2/68b2f239a3a4c41ab378a534da68e4a0/68b2f239a3a4c41ab378a534da68e4a0.png",
+          "https://fmoviesz.to/assets/sites/fmovies/logo.png",
         clientX: 0,
         clientY: 0,
         scaleX: 0.1,
@@ -108,7 +108,7 @@ export default {
         clientRotation: 0,
       },
       {
-        imageUrl: "http://0.0.0.0:9191/assets/kissy.gif",
+        imageUrl: "http://0.0.0.0:9191/assets/screenshot.png",
         clientX: 0,
         clientY: 0,
         scaleX: 0.1,
@@ -132,12 +132,12 @@ const initializeTargetsFromLocalStorage = () => {
         return {
           id: imageObject.id,
           imageUrl: `http://0.0.0.0:9191/assets/${imageObject.__key}`,
-          clientX: imageObject.clientx,
-          clientY: imageObject.clienty,
+          clientX: 0,
+          clientY: 0,
           scaleX: 0.1,
           scaleY: 0.1,
-          clientRotation: imageObject.clientrotation,
-          visible: imageObject.visible,
+          clientRotation: 0,
+          visible: true,
         };
       });
       generateTargets(targetData);
@@ -151,6 +151,7 @@ const initializeTargetsFromLocalStorage = () => {
 
 // Call the function to initialize targets from local storage
 initializeTargetsFromLocalStorage();
+// generateTargets(initialData);
 
     const onDrag = (event: {
       target: { style: { transform: any } };

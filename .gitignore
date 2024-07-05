@@ -1,5 +1,9 @@
 node_modules
 target
 upload/
+assets/
 .venv/
 .env
+.backups/
+.VSCodeCounter/
+tests/wb.txt

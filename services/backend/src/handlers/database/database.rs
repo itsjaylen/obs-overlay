@@ -6,18 +6,15 @@ use std::env;
 
 use crate::handlers::database::models::NewObject;
 
-use super::models::UpdatedObject;
+use super::models::{Object, UpdatedObject};
 
-// Configure r2d2 pool for PgConnection
 type PgPool = Pool<ConnectionManager<PgConnection>>;
 
-// Define a struct to hold the database connection
 pub struct Database {
     pool: PgPool,
 }
 
 impl Database {
-    // Create a new instance of Database
     pub fn new() -> Self {
         dotenv().ok();
         let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
@@ -29,16 +26,15 @@ impl Database {
         Database { pool }
     }
 
-    // Method to create a new object in the database
     pub async fn create_object(
         &self,
         url_str: String,
         type_str: String,
-        clientx_int: i32,
-        clienty_int: i32,
-        scalex_int: i32,
-        scaley_int: i32,
-        clientrotation_int: i32,
+        clientx_int: f64,
+        clienty_int: f64,
+        scalex_int: f64,
+        scaley_int: f64,
+        clientrotation_int: f64,
         visible_bool: bool,
         draggable_bool: bool,
     ) -> Result<usize, Error> {
@@ -85,4 +81,26 @@ impl Database {
 
         diesel::delete(object.filter(url.eq(&url_str))).execute(&mut conn)
     }
+
+    pub async fn show_all_objects(&self) -> Vec<Object> {
+        use crate::handlers::database::schema::object::dsl::*;
+
+        let mut conn = self.pool.get().expect("Failed to get connection from pool");
+
+        object
+            .select(Object::as_select())
+            .load::<Object>(&mut conn)
+            .expect("Error loading tasks")
+    }
+
+    pub async fn fetch_object_by_filename(&self, filename: &str) -> Result<Object, Error> {
+        use crate::handlers::database::schema::object::dsl::*;
+
+        let mut conn = self.pool.get().expect("Failed to get connection from pool");
+
+        object
+            .filter(url.eq(filename))
+            .first::<Object>(&mut conn)
+    }
+
 }

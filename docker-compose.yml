@@ -24,7 +24,17 @@ services:
       - ./assets:/usr/src/app/assets
     depends_on:
       - database
-
+      - redis
+      
+  redis:
+    image: redis
+    container_name: ObsRedis
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redis-data:/data
+      - ./redis/redis.conf:/usr/local/etc/redis/redis.conf   # Adjusted volume path
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
 
 volumes:
   assets:

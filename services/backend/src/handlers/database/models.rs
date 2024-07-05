@@ -5,30 +5,30 @@ use super::schema::object;
 
 
 
-#[derive(Queryable, Selectable, Serialize, Deserialize)]
+#[derive(Queryable, Selectable, Serialize, Deserialize, Debug, Clone)]
 #[diesel(table_name = object)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Object {
     pub id: i32,
     pub url: String,
     pub type_: String,
-    pub clientx: Option<i32>,
-    pub clienty: Option<i32>,
-    pub scalex: Option<i32>,
-    pub scaley: Option<i32>,
-    pub clientrotation: Option<i32>,
+    pub clientx: Option<f64>,
+    pub clienty: Option<f64>,
+    pub scalex: Option<f64>,
+    pub scaley: Option<f64>,
+    pub clientrotation: Option<f64>,
     pub visible: bool,
     pub draggable: bool,
-    pub throttledrag: Option<i32>,
+    pub throttledrag: Option<f64>,
     pub edgedraggable: Option<bool>,
-    pub startdragrotate: Option<i32>,
-    pub throttledragrotate: Option<i32>,
+    pub startdragrotate: Option<f64>,
+    pub throttledragrotate: Option<f64>,
     pub scalable: Option<bool>,
     pub keepratio: Option<bool>,
-    pub throttlescale: Option<i32>,
+    pub throttlescale: Option<f64>,
     pub renderdirections: Option<Vec<Option<String>>>,
     pub rotatable: Option<bool>,
-    pub throttlerotate: Option<i32>,
+    pub throttlerotate: Option<f64>,
     pub rotationposition: Option<String>,
 }
 
@@ -39,11 +39,11 @@ pub struct Object {
 pub struct NewObject {
     pub url: String,
     pub type_: String,
-    pub clientx: i32,
-    pub clienty: i32,
-    pub scalex: i32,
-    pub scaley: i32,
-    pub clientrotation: i32,
+    pub clientx: f64,
+    pub clienty: f64,
+    pub scalex: f64,
+    pub scaley: f64,
+    pub clientrotation: f64,
     pub visible: bool,
     pub draggable: bool,
 }
@@ -53,22 +53,22 @@ pub struct NewObject {
 #[diesel(table_name = object)]
 pub struct UpdatedObject {
     pub url: String,
-    pub clientx: Option<i32>,
-    pub clienty: Option<i32>,
-    pub scalex: Option<i32>,
-    pub scaley: Option<i32>,
-    pub clientrotation: Option<i32>,
+    pub clientx: Option<f64>,
+    pub clienty: Option<f64>,
+    pub scalex: Option<f64>,
+    pub scaley: Option<f64>,
+    pub clientrotation: Option<f64>,
     pub visible: Option<bool>,
     pub draggable: Option<bool>,
-    pub throttledrag: Option<i32>,
+    pub throttledrag: Option<f64>,
     pub edgedraggable: Option<bool>,
-    pub startdragrotate: Option<i32>,
-    pub throttledragrotate: Option<i32>,
+    pub startdragrotate: Option<f64>,
+    pub throttledragrotate: Option<f64>,
     pub scalable: Option<bool>,
     pub keepratio: Option<bool>,
-    pub throttlescale: Option<i32>,
+    pub throttlescale: Option<f64>,
     pub renderdirections: Option<Vec<Option<String>>>,
     pub rotatable: Option<bool>,
-    pub throttlerotate: Option<i32>,
+    pub throttlerotate: Option<f64>,
     pub rotationposition: Option<String>,
 }

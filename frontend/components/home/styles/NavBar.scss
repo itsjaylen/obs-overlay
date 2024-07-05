@@ -1,0 +1,63 @@
+$background-color_1: rgba(30, 76, 228, 0.125);
+$blur-amount: 9px;
+
+$toolbarTitleColor: #ffffff;
+$toolbarTitleFontSize: 25px;
+
+.custom-navbar {
+  .v-toolbar-title {
+    color: $toolbarTitleColor;
+    font-size: $toolbarTitleFontSize;
+    font-weight: bold;
+    padding: 0 13px;
+    margin: 0;
+  }
+  background-color: $background-color_1;
+  backdrop-filter: blur($blur-amount);
+  padding: 1px;
+}
+
+.link-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-grow: 1;
+}
+
+.dropdown-btn {
+  display: flex;
+  align-items: center;
+  position: relative;
+  margin: 0 20px;
+}
+
+.dropdown-icon {
+  transition: transform 0.3s ease;
+  color: rgb(255, 255, 255);
+}
+
+.rotate-icon {
+  transform: rotate(180deg);
+}
+
+.link-text {
+  font-size: 15px;
+  color: rgb(255, 255, 255);
+}
+
+.custom-list {
+  padding: 0 !important;
+}
+
+.v-list-item.custom-list-item {
+  background-color: rgb(7, 59, 128) !important;
+  margin: 0 !important;
+}
+
+.v-list-item.custom-list-item:hover {
+  background-color: #00a581 !important;
+}
+
+.menu-item-text {
+  color: #000000;
+}

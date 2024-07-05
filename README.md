@@ -1,42 +1,45 @@
-# Nuxt 3 Minimal Starter
+# OBS-Overlay
 
-Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
 
-## Setup
+## Table Of Content
 
-Make sure to install the dependencies:
+- [Installation](#installation)
+- [Todo](#todo)
 
-```bash
-# yarn
-yarn install
 
-# npm
-npm install
 
-# pnpm
-pnpm install
-```
 
-## Development Server
+## Description
+A brief description of what your project does.
 
-Start the development server on `http://localhost:3000`
+## Todo
+- [ ] Link the menu to the objects
+- [ ] Live Updates instead of refreshing
+- [ ] Clean up code by splitting it down into even smaller components
+- [ ] Make sure everything is async
+- [ ] Setup the overlay page so they are displayed there
+- [ ] Setup Auth so its secure
+- [ ] CSRF api 
+- [ ] Proper Logging
+- [ ] Redis event system for real time updates
+- [ ] Fix database pooling 
+- [ ] Add twitch OAuth and then 
 
-```bash
-npm run dev
-```
+## Bugs
+1. Images getting stuck on upload
+2. Memory potential memory leak
+3. Database is integers and not floats
+4. 
 
-## Production
 
-Build the application for production:
+## Installation
+Steps on how to install the project.
 
-```bash
-npm run build
-```
+## Usage
+Instructions and examples for using the project.
 
-Locally preview production build:
+## Contributing
+Guidelines for contributing to the project.
 
-```bash
-npm run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+## License
+License information.

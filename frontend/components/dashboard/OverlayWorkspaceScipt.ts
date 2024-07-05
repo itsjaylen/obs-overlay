@@ -1,5 +1,53 @@
 import Moveable from "vue3-moveable";
 
+class ImageObject {
+  __key: string;
+  clientrotation: number;
+  clientx: number;
+  clienty: number;
+  draggable: boolean;
+  edgedraggable: boolean;
+  id: number;
+  keepratio: boolean;
+  renderdirections: string[];
+  rotatable: boolean;
+  rotationposition: number;
+  scalable: boolean;
+  scalex: number;
+  scaley: number;
+  startdragrotate: number;
+  throttledrag: number;
+  throttledragrotate: number;
+  throttlerotate: number;
+  throttlescale: number;
+  type_: string;
+  visible: boolean;
+
+  constructor(data: any) {
+    this.__key = data.__key || "";
+    this.clientrotation = parseFloat(data.clientrotation) || 0;
+    this.clientx = parseFloat(data.clientx) || 0;
+    this.clienty = parseFloat(data.clienty) || 0;
+    this.draggable = data.draggable === "true";
+    this.edgedraggable = data.edgedraggable === "true";
+    this.id = parseInt(data.id) || 0;
+    this.keepratio = data.keepratio === "true";
+    this.renderdirections = data.renderdirections || [];
+    this.rotatable = data.rotatable === true || data.rotatable === "true";
+    this.rotationposition = parseFloat(data.rotationposition) || 0;
+    this.scalable = data.scalable === true || data.scalable === "true";
+    this.scalex = parseFloat(data.scalex) || 1;
+    this.scaley = parseFloat(data.scaley) || 1;
+    this.startdragrotate = parseFloat(data.startdragrotate) || 0;
+    this.throttledrag = parseFloat(data.throttledrag) || 0;
+    this.throttledragrotate = parseFloat(data.throttledragrotate) || 0;
+    this.throttlerotate = parseFloat(data.throttlerotate) || 0;
+    this.throttlescale = parseFloat(data.throttlescale) || 0;
+    this.type_ = data.type_ || "";
+    this.visible = data.visible === true || data.visible === "true";
+  }
+}
+
 export default {
   components: { Moveable },
   setup() {
@@ -16,19 +64,32 @@ export default {
     const throttleRotate = 0;
     const rotationPosition = "top";
 
-    const targets = [
+    let targets: any[] = [];
+
+    const generateTargets = (data: any[]) => {
+      targets = data.map((item, index) => ({
+        id: index + 1,
+        imageUrl: item.imageUrl,
+        clientX: item.clientX || 0,
+        clientY: item.clientY || 0,
+        scaleX: item.scaleX || 0.1,
+        scaleY: item.scaleY || 0.1,
+        clientRotation: item.clientRotation || 0,
+        visible: true,
+      }));
+    };
+
+    // Initial data to generate targets
+    const initialData = [
       {
-        id: 1,
         imageUrl: "https://cdn.vuetifyjs.com/images/parallax/material.jpg",
         clientX: 0,
         clientY: 0,
         scaleX: 0.9470774091627172,
         scaleY: 0.9072730261447918,
         clientRotation: 0,
-        visible: true,
       },
       {
-        id: 2,
         imageUrl:
           "https://cdn.vuetifyjs.com/docs/images/one/logos/vuetify-logo-dark.png",
         clientX: 0,
@@ -36,31 +97,61 @@ export default {
         scaleX: 0.1,
         scaleY: 0.1,
         clientRotation: 0,
-        visible: true,
       },
       {
-        id: 3,
         imageUrl:
-          "https://img.soap2day.rs/xxrz/400x400/100/68/b2/68b2f239a3a4c41ab378a534da68e4a0/68b2f239a3a4c41ab378a534da68e4a0.png",
+          "https://fmoviesz.to/assets/sites/fmovies/logo.png",
         clientX: 0,
         clientY: 0,
         scaleX: 0.1,
         scaleY: 0.1,
         clientRotation: 0,
-        visible: true,
       },
       {
-        id: 4,
-        imageUrl:
-          "http://0.0.0.0:9191/assets/kissy.gif",
+        imageUrl: "http://0.0.0.0:9191/assets/screenshot.png",
         clientX: 0,
         clientY: 0,
         scaleX: 0.1,
         scaleY: 0.1,
         clientRotation: 0,
-        visible: true,
       },
     ];
+
+    
+
+// Function to initialize targets from local storage
+const initializeTargetsFromLocalStorage = () => {
+  if (typeof localStorage !== 'undefined') {
+    const storedResultString = localStorage.getItem(
+      "fetchObjectsResultObject"
+    );
+    if (storedResultString) {
+      const storedResultObjects = JSON.parse(storedResultString);
+      const targetData = storedResultObjects.map((item: any) => {
+        const imageObject = new ImageObject(item);
+        return {
+          id: imageObject.id,
+          imageUrl: `http://0.0.0.0:9191/assets/${imageObject.__key}`,
+          clientX: 0,
+          clientY: 0,
+          scaleX: 0.1,
+          scaleY: 0.1,
+          clientRotation: 0,
+          visible: true,
+        };
+      });
+      generateTargets(targetData);
+    } else {
+      console.log("No data found in localStorage");
+    }
+  } else {
+    console.log("localStorage is not available.");
+  }
+};
+
+// Call the function to initialize targets from local storage
+initializeTargetsFromLocalStorage();
+// generateTargets(initialData);
 
     const onDrag = (event: {
       target: { style: { transform: any } };
@@ -184,14 +275,13 @@ export default {
 
     // Function to get the transform style for a target
     const getTargetTransform = (id: number) => {
-        const target = targets.find((t) => t.id === id);
-        if (!target) {
-          // Handle the case where target is not found, for example:
-          return ''; // or any default transformation you want to return
-        }
-        return `translate(${target.clientX}px, ${target.clientY}px) rotate(${target.clientRotation}deg) scale(${target.scaleX}, ${target.scaleY})`;
-      };
-      
+      const target = targets.find((t) => t.id === id);
+      if (!target) {
+        // Handle the case where target is not found, for example:
+        return ""; // or any default transformation you want to return
+      }
+      return `translate(${target.clientX}px, ${target.clientY}px) rotate(${target.clientRotation}deg) scale(${target.scaleX}, ${target.scaleY})`;
+    };
 
     return {
       draggable,

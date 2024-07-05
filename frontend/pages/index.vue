@@ -1,26 +1,21 @@
 <template>
-  <div id="twitch-embed">
-    <TwitchPlayer channelName="agent00" />
-  </div>
-
-  <div id="nav-drawer">
-    <v-app>
-      <NavigationDrawer />
-    </v-app>
-  </div>
-
-  <OverlayWorkspace />
+  <MainLayout>
+  </MainLayout>
 </template>
 
 <script>
-import TwitchPlayer from "~/components/embeds/TwitchEmbed.vue";
-import NavigationDrawer from "~/components/dashboard/NavigationDrawer.vue";
-import OverlayWorkspace from "~/components/dashboard/OverlayWorkspace.vue";
+import MainLayout from "~/layouts/HomePageLayout.vue";
+
 export default {
+  name: "HomePage",
   components: {
-    TwitchPlayer,
-    NavigationDrawer,
-    OverlayWorkspace,
+    MainLayout,
   },
 };
 </script>
+
+<style scoped>
+h1 {
+  color: blue;
+}
+</style>

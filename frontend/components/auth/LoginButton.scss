@@ -1,0 +1,21 @@
+$color_1: white;
+$background-color_1: #9146FF;
+$background-color_2: #0e0120;
+
+.login-button {
+	background-color: $background-color_1;
+	color: $color_1;
+	border: none;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 14px;
+	margin: 0;
+	&:hover {
+		background-color: $background-color_2;
+	}
+}
+
+.login-container {
+    display: flex;
+    align-items: center;
+  }

@@ -1,12 +1,16 @@
 use std::error::Error;
 
 use crate::handlers::{
-    database::{database::Database, redis_db::RedisDatabase},
-    server::utils::{
-        constants::{GIF_EXTENSION, IMAGE_EXTENSIONS},
-        file_utils::{is_gif_file, is_image_file},
+    database::{ database::Database, redis_db::RedisDatabase },
+    server::{
+        events::tasks::redis_tasks::update_expired_keys,
+        utils::{
+            constants::{ GIF_EXTENSION, IMAGE_EXTENSIONS },
+            file_utils::{ is_gif_file, is_image_file },
+        },
     },
 };
+use actix::spawn;
 use redis::AsyncCommands;
 
 pub async fn on_upload(filename: String) -> Result<(), Box<dyn Error + Send + Sync>> {
@@ -25,19 +29,17 @@ pub async fn on_upload(filename: String) -> Result<(), Box<dyn Error + Send + Sy
 
     let db = Database::new();
 
-    let result = db
-        .create_object(
-            filename.to_string(),
-            type_str.to_string(),
-            1,
-            1,
-            1,
-            1,
-            0,
-            true,
-            false,
-        )
-        .await;
+    let result = db.create_object(
+        filename.to_string(),
+        type_str.to_string(),
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        0.0,
+        true,
+        false
+    ).await;
 
     match result {
         Ok(rows) => {
@@ -58,18 +60,20 @@ pub async fn on_upload(filename: String) -> Result<(), Box<dyn Error + Send + Sy
                             connection.hset(&main_key, &field_name, s).await?;
                         }
                         _ => {
-                            connection
-                                .hset(&main_key, &field_name, value.to_string())
-                                .await?;
+                            connection.hset(&main_key, &field_name, value.to_string()).await?;
                         }
                     }
                 }
 
                 connection.expire(&main_key, 300).await?;
+                spawn(async {
+                    if let Err(e) = update_expired_keys(true).await {
+                        eprintln!("Error updating keys: {}", e);
+                    }
+                });
             } else {
                 println!("Object has no URL.");
             }
-
         }
         Err(e) => println!("Error inserting object: {}", e),
     }

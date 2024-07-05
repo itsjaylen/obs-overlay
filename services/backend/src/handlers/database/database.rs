@@ -8,16 +8,13 @@ use crate::handlers::database::models::NewObject;
 
 use super::models::{Object, UpdatedObject};
 
-// Configure r2d2 pool for PgConnection
 type PgPool = Pool<ConnectionManager<PgConnection>>;
 
-// Define a struct to hold the database connection
 pub struct Database {
     pool: PgPool,
 }
 
 impl Database {
-    // Create a new instance of Database
     pub fn new() -> Self {
         dotenv().ok();
         let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
@@ -29,16 +26,15 @@ impl Database {
         Database { pool }
     }
 
-    // Method to create a new object in the database
     pub async fn create_object(
         &self,
         url_str: String,
         type_str: String,
-        clientx_int: i32,
-        clienty_int: i32,
-        scalex_int: i32,
-        scaley_int: i32,
-        clientrotation_int: i32,
+        clientx_int: f64,
+        clienty_int: f64,
+        scalex_int: f64,
+        scaley_int: f64,
+        clientrotation_int: f64,
         visible_bool: bool,
         draggable_bool: bool,
     ) -> Result<usize, Error> {

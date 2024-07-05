@@ -6,3 +6,4 @@ assets/
 .env
 .backups/
 .VSCodeCounter/
+tests/wb.txt

@@ -1,20 +1,23 @@
+use actix::spawn;
 use actix_cors::Cors;
 use actix_files as fs;
 use actix_web::{web, App, HttpResponse, HttpServer};
 use handlers::server::{
-    events::{on_run::on_run, tasks::redis_tasks::update_expired_keys}, routes::{
-        delete_file, force_update_keys, get_objects, list_files, update_file, upload
-    }, test_route::upload_with_custom_header, utils::csrf::get_csrf
+    events::{on_run::on_run, tasks::redis_tasks::update_expired_keys},
+    routes::{delete_file, force_update_keys, get_objects, list_files, update_file, upload},
+    test_route::upload_with_custom_header,
+    utils::csrf::get_csrf,
+    websocket::socket::index,
 };
 use std::{error::Error, path::Path};
-use tokio::{fs as tokio_fs, task};
+use tokio::fs as tokio_fs;
 
 pub mod handlers;
 
 #[actix_web::main]
 async fn main() -> Result<(), Box<dyn Error + 'static>> {
-    let on_run_task = task::spawn(on_run());
-    let redis_tasks = task::spawn(update_expired_keys());
+    let on_run_task = spawn(on_run());
+    let redis_tasks = spawn(update_expired_keys(false));
 
     if !Path::new("./assets/").exists() {
         tokio_fs::create_dir_all("./assets/").await?;
@@ -41,6 +44,7 @@ async fn main() -> Result<(), Box<dyn Error + 'static>> {
             .route("/get_csrf", web::get().to(get_csrf))
             .route("/test", web::post().to(upload_with_custom_header))
             .route("/get_objects", web::get().to(get_objects))
+            .route("/ws/", web::get().to(index))
     })
     .bind(("0.0.0.0", port))?
     .run()

@@ -138,7 +138,7 @@ pub async fn update_file(mut payload: Multipart, _req: HttpRequest) -> HttpRespo
 
 pub async fn force_update_keys() -> HttpResponse {
     task::spawn(async {
-        if let Err(e) = update_expired_keys().await {
+        if let Err(e) = update_expired_keys(true).await {
             eprintln!("Failed to update expired keys: {}", e);
         }
     });
@@ -186,3 +186,4 @@ pub async fn get_objects() -> Result<HttpResponse, io::Error> {
         .cookie(cookie)
         .body(response_body))
 }
+

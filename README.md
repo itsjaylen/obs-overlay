@@ -22,6 +22,8 @@ A brief description of what your project does.
 - [ ] CSRF api 
 - [ ] Proper Logging
 - [ ] Redis event system for real time updates
+- [ ] Fix database pooling 
+- [ ] Add twitch OAuth and then 
 
 ## Bugs
 1. Images getting stuck on upload

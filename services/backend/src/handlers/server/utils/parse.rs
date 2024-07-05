@@ -20,7 +20,7 @@ pub async fn parse_multipart_data(payload: &mut Multipart) -> HashMap<String, St
     data
 }
 
-pub fn parse_optional_int(data: &HashMap<String, String>, key: &str) -> Option<i32> {
+pub fn parse_optional_int(data: &HashMap<String, String>, key: &str) -> Option<f64> {
     data.get(key).and_then(|s| s.parse().ok())
 }
 

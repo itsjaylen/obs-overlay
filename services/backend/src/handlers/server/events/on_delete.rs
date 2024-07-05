@@ -1,4 +1,6 @@
-use crate::handlers::database::{database::Database, redis_db::RedisDatabase};
+use actix::spawn;
+
+use crate::handlers::{database::{database::Database, redis_db::RedisDatabase}, server::events::tasks::redis_tasks::update_expired_keys};
 
 pub async fn on_delete(filename: String) {
     let redis_database = RedisDatabase::new();
@@ -15,6 +17,11 @@ pub async fn on_delete(filename: String) {
     match db.delete_object(filename).await {
         Ok(rows_affected) => {
             println!("Deleted {} rows", rows_affected);
+            spawn(async {
+                if let Err(e) = update_expired_keys(true).await {
+                    eprintln!("Error updating keys: {}", e);
+                }
+            });
         }
         Err(e) => {
             eprintln!("Error deleting object: {}", e);

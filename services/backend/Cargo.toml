@@ -19,3 +19,7 @@ serde = { version = "1.0.201", features = ["derive"] }
 redis = { version = "0.25.3", features = ["tokio-comp"] }
 percent-encoding = "2.3.1"
 rand = "0.8.5"
+actix-web-actors = "4.3.0"
+actix = "0.13.5"
+lazy_static = "1.4.0"
+actix-rt = "2.10.0"

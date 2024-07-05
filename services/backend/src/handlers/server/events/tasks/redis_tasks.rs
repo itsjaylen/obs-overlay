@@ -1,14 +1,23 @@
-use tokio::time::{sleep, Duration};
 use std::error::Error;
+use tokio::time::{sleep, Duration};
 
-use crate::handlers::database::{database::Database, redis_db::RedisDatabase};
+use crate::handlers::{
+    database::{database::Database, redis_db::RedisDatabase},
+    server::websocket::{message::UpdateMessage, socket::WEBSOCKET_ADDR},
+};
 use redis::AsyncCommands;
 use serde_json::Value;
 
-pub async fn update_expired_keys() -> Result<(), Box<dyn Error + Send + Sync>> {
+pub async fn update_expired_keys(force: bool) -> Result<(), Box<dyn Error + Send + Sync>> {
     loop {
-        // Sleep for 300 seconds (5 minutes)
-        sleep(Duration::from_secs(300)).await;
+        if !force {
+            // Sleep for 300 seconds
+            sleep(Duration::from_secs(300)).await;
+        }
+
+        if let Some(addr) = WEBSOCKET_ADDR.lock().unwrap().clone() {
+            addr.do_send(UpdateMessage("UpdatedKeys".into()));
+        }
         println!("Updating Expired keys....");
 
         let redis_database = RedisDatabase::new();
@@ -40,13 +49,21 @@ pub async fn update_expired_keys() -> Result<(), Box<dyn Error + Send + Sync>> {
                             connection.expire(&main_key, 300).await?;
                         }
                         _ => {
-                            connection.hset(&main_key, &field_name, value.to_string()).await?;
+                            connection
+                                .hset(&main_key, &field_name, value.to_string())
+                                .await?;
                             connection.expire(&main_key, 300).await?;
                         }
                     }
                 }
             }
         }
-    }
-}
 
+        // Exit loop if force is true
+        if force {
+            break;
+        }
+    }
+
+    Ok(())
+}

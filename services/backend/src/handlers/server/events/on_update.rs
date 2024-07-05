@@ -10,7 +10,7 @@ pub async fn on_update(filename: String, updated_object: UpdatedObject) {
 
     // Spawn a task to update expired keys
     spawn(async {
-        if let Err(e) = update_expired_keys().await {
+        if let Err(e) = update_expired_keys(true).await {
             eprintln!("Error updating keys: {}", e);
         }
     });

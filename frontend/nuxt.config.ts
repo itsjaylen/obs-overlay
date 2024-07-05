@@ -1,5 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
+  
+  
   css: ["vuetify/styles/main.sass", "@mdi/font/css/materialdesignicons.css"],
 
   build: {
@@ -15,6 +17,7 @@ export default defineNuxtConfig({
     // Keys within public, will be also exposed to the client-side
     public: {
       apiBase: ''
-    }
-  }
+    },
+  },
+  
 });

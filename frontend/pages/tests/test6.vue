@@ -29,7 +29,7 @@ let socket;
 
 const connectWebSocket = () => {
   socket = new WebSocket("ws://0.0.0.0:9191/ws/");
-  
+
   socket.onopen = () => {
     console.log("Connected to WebSocket server");
     reconnectAttempts = 0; 
@@ -44,7 +44,7 @@ const connectWebSocket = () => {
       readData();
     }
   };
-
+  
   socket.onerror = (error) => {
     console.error("WebSocket error:", error);
   };

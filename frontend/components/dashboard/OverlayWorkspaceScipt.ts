@@ -278,6 +278,7 @@ initializeTargetsFromLocalStorage();
       const target = targets.find((t) => t.id === id);
       if (!target) {
         // Handle the case where target is not found, for example:
+        console.log("Not found?")
         return ""; // or any default transformation you want to return
       }
       return `translate(${target.clientX}px, ${target.clientY}px) rotate(${target.clientRotation}deg) scale(${target.scaleX}, ${target.scaleY})`;

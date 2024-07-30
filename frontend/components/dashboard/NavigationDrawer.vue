@@ -7,8 +7,8 @@
         color="blue"
         icon="mdi-wrench"
         @click="console.log('Settings clicked')"
-      ></v-btn
-    ></v-list-item>
+      ></v-btn>
+    </v-list-item>
     <v-divider></v-divider>
 
     <v-list-item>
@@ -16,13 +16,11 @@
         label="Overlay Enabled"
         v-model="overlayEnabled"
         @change="handleOverlayChange"
-      >
-      </v-checkbox>
+      ></v-checkbox>
     </v-list-item>
 
     <v-list-item>
-      <v-checkbox label="Interactive Enabled" v-model="interactiveEnabled">
-      </v-checkbox>
+      <v-checkbox label="Interactive Enabled" v-model="interactiveEnabled"></v-checkbox>
     </v-list-item>
 
     <v-list-item>
@@ -160,7 +158,6 @@ export default {
 <style>
 .icon-spacing {
   margin-right: 10px;
-  /* Adjust the value to increase/decrease the space */
 }
 
 .position-index {

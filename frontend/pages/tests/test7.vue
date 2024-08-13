@@ -1,26 +1,52 @@
 <template>
   <div>
-    <h1>IndexedDB Example</h1>
-    <button @click="addData">Add Data</button>
-    <button @click="readData">Read Data</button>
-    <button @click="updateData">Update Data</button>
-    <button @click="removeData">Remove Data</button>
-    <button @click="fetchAndAddData">Fetch and Add Data</button>
+    <h1>IndexedDB Example with Moveable</h1>
     <div v-if="dataList.length">
       <h2>Data in Database:</h2>
-      <ul>
-        <li v-for="item in dataList" :key="item.id">
-          {{ item.id }}: {{ item.__key }}
-        </li>
-      </ul>
+      <div class="container">
+        <div
+          v-for="item in dataList"
+          :key="item.id"
+          :class="`target target${item.id}`"
+          :style="`transform: translate(0px, 0px) rotate(${item.clientRotation}deg);`"
+        >
+          <v-img :src="baseImageUrl + item.__key" />
+          <div class="moveable-label">{{ item.name }}</div>
+        </div>
+        <Moveable
+          v-for="item in dataList"
+          :key="item.id"
+          :target="`.target${item.id}`"
+          :draggable="draggable"
+          :throttleDrag="throttleDrag"
+          :edgeDraggable="edgeDraggable"
+          :startDragRotate="startDragRotate"
+          :throttleDragRotate="throttleDragRotate"
+          :scalable="scalable"
+          :keepRatio="keepRatio"
+          :throttleScale="throttleScale"
+          :renderDirections="renderDirections"
+          :rotatable="rotatable"
+          :throttleRotate="throttleRotate"
+          :rotationPosition="rotationPosition"
+          @drag="onDrag"
+          @scale="onScale"
+          @rotate="onRotate"
+        >
+          <template #default="{ target }">
+            <div v-if="target" class="moveable-label">
+              {{ item.name }}
+            </div>
+          </template>
+        </Moveable>
+      </div>
     </div>
   </div>
-  
 </template>
 
 <script setup>
-import { onMounted, onUnmounted, ref } from "vue";
 import axios from "axios";
+import Moveable from "vue3-moveable";
 
 const dbRef = ref(null);
 const dataList = ref([]);
@@ -28,41 +54,36 @@ const maxReconnectAttempts = 5;
 let reconnectAttempts = 0;
 let socket;
 
+const baseImageUrl = "http://0.0.0.0:9191/assets/";
+
 const connectWebSocket = () => {
   socket = new WebSocket("ws://0.0.0.0:9191/ws/");
 
   socket.onopen = () => {
     console.log("Connected to WebSocket server");
-    reconnectAttempts = 0; 
+    reconnectAttempts = 0;
   };
 
   socket.onmessage = (event) => {
-    console.log("Received message:", event.data, "with type:", typeof event.data);
-    
     if (event.data.trim() === "UpdatedKeys") {
-      console.log("UpdatedKeys message received, calling fetchAndAddData and readData");
       fetchAndAddData();
       readData();
     }
   };
-  
+
   socket.onerror = (error) => {
     console.error("WebSocket error:", error);
   };
 
   socket.onclose = () => {
-    console.log("Disconnected from WebSocket server");
     if (reconnectAttempts < maxReconnectAttempts) {
       reconnectAttempts++;
-      console.log(`Reconnecting attempt ${reconnectAttempts}...`);
-      setTimeout(connectWebSocket, 1000 * reconnectAttempts); // Exponential backoff
-    } else {
-      console.error("Max reconnection attempts reached. Giving up.");
+      setTimeout(connectWebSocket, 1000 * reconnectAttempts); 
     }
   };
 };
 
-onMounted(async () => {
+onMounted(() => {
   const request = indexedDB.open("obsOverlayDB", 1);
 
   request.onupgradeneeded = (event) => {
@@ -83,9 +104,6 @@ onMounted(async () => {
   };
 
   connectWebSocket();
-
-  fetchAndAddData();
-  readData();
 });
 
 onUnmounted(() => {
@@ -96,7 +114,6 @@ onUnmounted(() => {
 
 const addData = () => {
   if (!dbRef.value) {
-    console.log("Database not initialized");
     return;
   }
 
@@ -104,12 +121,18 @@ const addData = () => {
   const transaction = db.transaction("objects", "readwrite");
   const objectStore = transaction.objectStore("objects");
 
-  const data = { id: Date.now(), name: "Sample Data", value: Math.random() };
+  const data = {
+    id: Date.now(),
+    name: "Sample Data",
+    value: Math.random(),
+    __key: "sample.jpg",
+    clientRotation: 0 
+  };
 
   const request = objectStore.add(data);
 
   request.onsuccess = () => {
-    console.log("Data added successfully");
+    readData();
   };
 
   request.onerror = (event) => {
@@ -118,9 +141,7 @@ const addData = () => {
 };
 
 const readData = () => {
-  console.log("readData called");
   if (!dbRef.value) {
-    console.log("Database not initialized");
     return;
   }
 
@@ -132,7 +153,6 @@ const readData = () => {
 
   request.onsuccess = (event) => {
     dataList.value = event.target.result;
-    console.log("Data read successfully:", dataList.value);
   };
 
   request.onerror = (event) => {
@@ -141,9 +161,7 @@ const readData = () => {
 };
 
 const updateData = () => {
-  console.log("updateData called");
   if (!dbRef.value) {
-    console.log("Database not initialized");
     return;
   }
 
@@ -157,7 +175,6 @@ const updateData = () => {
     const data = event.target.result;
 
     if (data.length === 0) {
-      console.log("No data to update");
       return;
     }
 
@@ -168,7 +185,6 @@ const updateData = () => {
     const updateRequest = objectStore.put(itemToUpdate);
 
     updateRequest.onsuccess = () => {
-      console.log("Data updated successfully");
       readData();
     };
 
@@ -183,9 +199,7 @@ const updateData = () => {
 };
 
 const removeData = () => {
-  console.log("removeData called");
   if (!dbRef.value) {
-    console.log("Database not initialized");
     return;
   }
 
@@ -199,7 +213,6 @@ const removeData = () => {
     const data = event.target.result;
 
     if (data.length === 0) {
-      console.log("No data to remove");
       return;
     }
 
@@ -207,7 +220,6 @@ const removeData = () => {
     const deleteRequest = objectStore.delete(idToRemove);
 
     deleteRequest.onsuccess = () => {
-      console.log("Data removed successfully");
       readData();
     };
 
@@ -222,19 +234,15 @@ const removeData = () => {
 };
 
 const fetchAndAddData = async () => {
-  console.log("fetchAndAddData called");
   if (!dbRef.value) {
-    console.log("Database not initialized");
     return;
   }
 
   try {
     const response = await axios.get("http://0.0.0.0:9191/get_objects");
-    console.log("Fetched data:", response.data);
     const fetchedData = response.data;
 
     if (!Array.isArray(fetchedData)) {
-      console.error("Fetched data is not an array");
       return;
     }
 
@@ -250,23 +258,21 @@ const fetchAndAddData = async () => {
 
       localData.forEach((localItem) => {
         if (!fetchedIds.includes(localItem.id)) {
-          objectStore.delete(localItem.id).onsuccess = () => {
-            console.log("Deleted local item with id:", localItem.id);
-          };
+          objectStore.delete(localItem.id);
         }
       });
 
       fetchedData.forEach((item) => {
         if (!item.hasOwnProperty("id")) {
-          console.error("Fetched item does not have an id:", item);
           return;
         }
         const request = objectStore.put(item);
-        request.onsuccess = () => {
-          console.log("Data fetched and added/updated successfully:", item);
-        };
         request.onerror = (event) => {
-          console.error("Error adding/updating fetched data:", event.target.errorCode, item);
+          console.error(
+            "Error adding/updating fetched data:",
+            event.target.errorCode,
+            item
+          );
         };
       });
 
@@ -280,8 +286,53 @@ const fetchAndAddData = async () => {
     console.error("Error fetching data:", error);
   }
 };
+
+const draggable = true;
+const throttleDrag = 1;
+const edgeDraggable = false;
+const startDragRotate = 0;
+const throttleDragRotate = 0;
+const scalable = true;
+const keepRatio = false;
+const throttleScale = 0;
+const renderDirections = ["nw", "n", "ne", "w", "e", "sw", "s", "se"];
+const rotatable = true;
+const throttleRotate = 0;
+const rotationPosition = "top";
+
+const onDrag = (e) => {
+  e.target.style.transform = e.transform;
+};
+
+const onScale = (e) => {
+  e.target.style.transform = e.drag.transform;
+};
+
+const onRotate = (e) => {
+  e.target.style.transform = e.drag.transform;
+};
 </script>
 
 <style scoped>
-/* Add your styles here */
+.container {
+  position: relative;
+}
+
+.target {
+  width: 100px;
+  height: 100px;
+  border: 1px solid black;
+  text-align: center;
+  line-height: 100px;
+  position: absolute;
+}
+
+.moveable-label {
+  position: absolute;
+  top: -20px;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.8);
+}
 </style>

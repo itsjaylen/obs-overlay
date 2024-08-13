@@ -7,8 +7,8 @@
         color="blue"
         icon="mdi-wrench"
         @click="console.log('Settings clicked')"
-      ></v-btn
-    ></v-list-item>
+      ></v-btn>
+    </v-list-item>
     <v-divider></v-divider>
 
     <v-list-item>
@@ -16,35 +16,39 @@
         label="Overlay Enabled"
         v-model="overlayEnabled"
         @change="handleOverlayChange"
-      >
-      </v-checkbox>
+      ></v-checkbox>
     </v-list-item>
 
     <v-list-item>
-      <v-checkbox label="Interactive Enabled" v-model="interactiveEnabled">
-      </v-checkbox>
+      <v-checkbox
+        label="Interactive Enabled"
+        v-model="interactiveEnabled"
+      ></v-checkbox>
+    </v-list-item>
+
+    <!-- Display selected target -->
+    <v-list-item>
+      <h3>Selected: {{ targetStore.selectedTarget }}</h3>
     </v-list-item>
 
     <v-list-item>
-      <p>Opacity: {{ overlayOpacity }}</p>
+      <p>Overlay Opacity: {{ overlayOpacity }}</p>
       <v-slider
         v-model="overlayOpacity"
-        :min="0"
-        :max="100"
-        step="1"
+        min="0"
+        max="1"
+        step="0.01"
         thumb-label
       ></v-slider>
     </v-list-item>
 
     <!-- Widget item -->
-    <v-list-item link title="Widgets">
+    <v-list-item title="Widgets">
       <Widgets />
     </v-list-item>
 
     <v-list-item title="Properties">
       <v-btn color="blue">Duplicate</v-btn>
-
-      <!-- Add functionality -->
 
       <p>Z-Index</p>
       <v-text-field
@@ -85,9 +89,19 @@
         thumb-label
       ></v-slider>
 
-      <p>Opacity: {{ WidgetOpacity }}</p>
+      <p>Opacity: {{ targetStore.selectedTargetOpacity }}</p>
       <v-slider
-        v-model="WidgetOpacity"
+        v-model="targetStore"
+        @update:modelValue="targetStore "
+        min="0"
+        max="1"
+        step="0.01"
+        thumb-label
+      ></v-slider>
+
+      <p>Brightness: {{ WidgetBrightness }}</p>
+      <v-slider
+        v-model="WidgetBrightness"
         :min="0"
         :max="100"
         step="1"
@@ -103,6 +117,7 @@
         @change="console.log(WidgetOpacity)"
       ></v-text-field>
 
+      <!-- TODO fix this -->
       <p>Blur: {{ WidgetBlur }}</p>
       <v-slider
         v-model="WidgetBlur"
@@ -124,35 +139,50 @@
   </v-navigation-drawer>
 </template>
 
-<script>
+<script lang="ts">
 import Widgets from "~/components/dashboard/Widgets.vue";
+import { useTargetStore } from "~/stores/targetStore";
+
 export default {
   components: {
     Widgets,
   },
-  data() {
+  setup() {
+    const targetStore = useTargetStore();
+    const overlayEnabled = ref(true);
+    const interactiveEnabled = ref(true);
+    const overlayOpacity = ref(0);
+    const z_index = ref(0);
+    const x_index = ref(0);
+    const y_index = ref(0);
+    const rotationValue = ref(0);
+    const WidgetOpacity = ref(1);
+    const WidgetBrightness = ref(1);
+    const WidgetBlur = ref(0);
+
+    function handleOverlayChange() {
+      console.log("Overlay Enabled:", overlayEnabled.value);
+    }
+
+
+    targetStore.setSelectedTarget("None");
+    targetStore.setSelectedTargetOpacity(0);
+    targetStore.setSelectedTargetBlur(0);
+
     return {
-      overlayEnabled: true,
-      interactiveEnabled: true,
-      overlayOpacity: 0,
-      z_index: 0,
-      x_index: 0,
-      y_index: 0,
-      rotationValue: 0,
-      WidgetOpacity: 0,
-      WidgetBlur: 0,
+      targetStore,
+      overlayEnabled,
+      interactiveEnabled,
+      overlayOpacity,
+      z_index,
+      x_index,
+      y_index,
+      rotationValue,
+      WidgetOpacity,
+      WidgetBrightness,
+      WidgetBlur,
+      handleOverlayChange,
     };
-  },
-  methods: {
-    handleOverlayChange() {
-      console.log("Overlay Enabled:", this.overlayEnabled);
-    },
-  },
-  computed: {
-    lockIcon() {
-      console.log("LOCKED");
-      return this.isLocked ? "mdi-lock" : "mdi-lock-open-variant";
-    },
   },
 };
 </script>
@@ -160,7 +190,6 @@ export default {
 <style>
 .icon-spacing {
   margin-right: 10px;
-  /* Adjust the value to increase/decrease the space */
 }
 
 .position-index {

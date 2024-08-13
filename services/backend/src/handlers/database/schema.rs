@@ -25,5 +25,7 @@ diesel::table! {
         rotatable -> Nullable<Bool>,
         throttlerotate -> Nullable<Float8>,
         rotationposition -> Nullable<Text>,
+        opacity -> Float8,
+        blur -> Nullable<Float8>,
     }
 }

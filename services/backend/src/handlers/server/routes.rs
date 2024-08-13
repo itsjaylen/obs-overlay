@@ -9,16 +9,16 @@ use std::io;
 use tokio::io::AsyncWriteExt;
 use tokio::{fs as tokio_fs, task};
 
+
+
 use crate::handlers::database::models::UpdatedObject;
 use crate::handlers::database::redis_db::RedisDatabase;
-use crate::handlers::server::events::on_delete::on_delete;
-use crate::handlers::server::events::on_update::on_update;
-use crate::handlers::server::events::on_upload::on_upload;
-use crate::handlers::server::utils::parse::{
-    parse_multipart_data, parse_optional_bool, parse_optional_int,
-};
 
+use super::events::on_delete::on_delete;
+use super::events::on_update::on_update;
+use super::events::on_upload::on_upload;
 use super::events::tasks::redis_tasks::update_expired_keys;
+use super::utils::parse::{parse_multipart_data, parse_optional_bool, parse_optional_int};
 
 pub async fn upload(mut payload: Multipart, req: HttpRequest) -> HttpResponse {
     let content_length: usize = req
@@ -40,18 +40,20 @@ pub async fn upload(mut payload: Multipart, req: HttpRequest) -> HttpResponse {
     let mut current_count: usize = 0;
     while current_count < max_file_count {
         if let Some(mut field) = payload.try_next().await.unwrap() {
+            // Use `and_then` to handle `Option` and then `unwrap_or` for default value
             let filename = field
                 .content_disposition()
-                .get_filename()
+                .and_then(|cd| cd.get_filename())
                 .unwrap_or("unknown_file");
+    
             let destination = format!("{}{}", dir, filename);
-
+    
             let mut saved_file = tokio_fs::File::create(&destination)
                 .await
                 .unwrap_or_else(|_| panic!("Failed to create file: {}", filename));
-
+    
             let _ = on_upload(filename.to_owned()).await;
-
+    
             while let Some(chunk) = field.try_next().await.unwrap() {
                 saved_file.write_all(&chunk).await.unwrap();
             }
@@ -60,6 +62,7 @@ pub async fn upload(mut payload: Multipart, req: HttpRequest) -> HttpResponse {
             break;
         }
     }
+    
 
     HttpResponse::Ok().finish()
 }

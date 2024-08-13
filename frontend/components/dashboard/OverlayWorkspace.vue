@@ -15,7 +15,7 @@
       <Moveable
         :target="'.target'"
         :individualGroupable="true"
-        :draggable="draggable"
+        :draggable="true"
         :throttleDrag="throttleDrag"
         :edgeDraggable="edgeDraggable"
         :startDragRotate="startDragRotate"

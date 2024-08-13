@@ -1,0 +1,7 @@
+procs:
+  backend:
+    shell: "cd services/backend/ && cargo watch -x 'run'"
+  frontend:
+    shell: "cd frontend && yarn dev --open"
+  terminal:
+    shell: "zsh"

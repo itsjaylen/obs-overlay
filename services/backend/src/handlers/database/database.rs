@@ -37,6 +37,8 @@ impl Database {
         clientrotation_int: f64,
         visible_bool: bool,
         draggable_bool: bool,
+        opacity_int: f64,
+        blur_int: f64,
     ) -> Result<usize, Error> {
         use crate::handlers::database::schema::object::dsl::*;
 
@@ -52,6 +54,8 @@ impl Database {
             clientrotation: clientrotation_int,
             visible: visible_bool,
             draggable: draggable_bool,
+            opacity: opacity_int,
+            blur: blur_int,
         };
 
         diesel::insert_into(object)

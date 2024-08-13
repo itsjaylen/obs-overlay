@@ -21,7 +21,11 @@ export interface ImageObjectData {
   throttlescale?: number;
   type_?: string;
   visible?: boolean;
+  opacity?: number;
+  blur?: number; // Add this line
 }
+
+
 
 // Define the ImageObject class
 export class ImageObject {
@@ -46,6 +50,8 @@ export class ImageObject {
   throttlescale: number;
   type_: string;
   visible: boolean;
+  opacity: number;
+  blur: number; 
 
   constructor(data: ImageObjectData) {
     this.__key = data.__key || "";
@@ -71,5 +77,8 @@ export class ImageObject {
     this.throttlescale = Number(data.throttlescale) || 0;
     this.type_ = data.type_ || "";
     this.visible = Boolean(data.visible);
+    this.opacity = Number(data.opacity) || 1; // Default to 1 if undefined
+    this.blur = Number(data.blur) || 1; // Default to 1 if undefined
   }
 }
+

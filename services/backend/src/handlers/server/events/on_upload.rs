@@ -38,7 +38,9 @@ pub async fn on_upload(filename: String) -> Result<(), Box<dyn Error + Send + Sy
         1.0,
         0.0,
         true,
-        false
+        false,
+        1.0,
+        0.0,
     ).await;
 
     match result {

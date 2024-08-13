@@ -46,13 +46,30 @@ async function getImageObject(key: string): Promise<ImageObject | undefined> {
   });
 }
 
+export async function fetchImageObjectByKey(
+  key: string
+): Promise<ImageObject | undefined> {
+  try {
+    const imageObject = await getImageObject(key);
+    return imageObject;
+  } catch (error) {
+    console.error("Error fetching ImageObject: ", error);
+    return undefined;
+  }
+}
+
 // Merge two ImageObject instances
-function mergeImageObjects(existing: ImageObject, incoming: ImageObject): ImageObject {
+function mergeImageObjects(
+  existing: ImageObject,
+  incoming: ImageObject
+): ImageObject {
   return { ...existing, ...incoming };
 }
 
 // Add or Update ImageObject instance in IndexedDB
-export async function addOrUpdateImageObject(imageObject: ImageObject): Promise<void> {
+export async function addOrUpdateImageObject(
+  imageObject: ImageObject
+): Promise<void> {
   const db = await openDatabase();
   const existingImageObject = await getImageObject(imageObject.__key);
 

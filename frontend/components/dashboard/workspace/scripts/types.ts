@@ -1,4 +1,5 @@
 export interface Target {
+  rotation: any;
   id: number;
   name: string;
   clientrotation: number;
@@ -17,6 +18,8 @@ export interface Target {
   rotatable?: boolean;
   throttleRotate?: number;
   rotationPosition?: "top" | "bottom" | "left" | "right";
+  opacity: number;
+  blur: number;
 }
 
 export interface ImageObjectData {
@@ -41,6 +44,8 @@ export interface ImageObjectData {
   throttlescale?: string;
   type_?: string;
   visible?: string;
+  opacity?: number;
+  blur: number;
 }
 
 export class ImageObject {
@@ -65,6 +70,8 @@ export class ImageObject {
   throttlescale: number;
   type_: string;
   visible: boolean;
+  opacity: number;
+  blur: number;
 
   constructor(data: ImageObjectData) {
     this.__key = data.__key ?? "";
@@ -88,5 +95,8 @@ export class ImageObject {
     this.throttlescale = parseFloat(data.throttlescale ?? "0");
     this.type_ = data.type_ ?? "";
     this.visible = data.visible === "true";
+    this.scaley = parseFloat(data.scaley ?? "1");
+    this.opacity = data.opacity ?? 1;
+    this.blur = data.blur ?? 0;
   }
 }

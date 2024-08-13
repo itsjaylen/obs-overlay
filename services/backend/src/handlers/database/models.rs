@@ -30,6 +30,8 @@ pub struct Object {
     pub rotatable: Option<bool>,
     pub throttlerotate: Option<f64>,
     pub rotationposition: Option<String>,
+    pub opacity: f64,
+    pub blur: Option<f64>,
 }
 
 
@@ -46,6 +48,8 @@ pub struct NewObject {
     pub clientrotation: f64,
     pub visible: bool,
     pub draggable: bool,
+    pub opacity: f64,
+    pub blur: f64,
 }
 
 

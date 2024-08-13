@@ -1,3 +1,4 @@
+import { defineComponent, ref, onMounted } from "vue";
 import { useTargets } from "../composables/useTargets";
 import { useMoveable } from "../composables/useMoveable";
 import Moveable from "vue3-moveable";
@@ -5,27 +6,46 @@ import { get_objects } from "./objects";
 
 export default defineComponent({
   components: { Moveable },
+  data() {
+    return {
+      sliderValue: 1, 
+      selected: "test",
+    };
+  },
   setup() {
     const {
       targets,
       objects,
-      selectedTargetId,
       fetchObject,
       fetchTargets,
       addTarget,
       onTargetClick,
       getTargetById,
+      updateOpacity,
     } = useTargets();
-    const { onDrag, onScale, onRotate, toggleScalable } = useMoveable(targets);
 
-    onMounted(() => {
+    const { onDrag, onScale, onRotate, toggleScalable } = useMoveable(targets);
+    const selectedOpacity = ref(1);
+    const selectedTargetId = ref<number | null>(null);
+
+    onMounted(async () => {
       fetchObject();
       get_objects();
+
+      const delay = 2000;
+      const targetId = 2;
+      const newOpacity = 0.1;
+
+      setTimeout(() => {
+        updateOpacity(targetId, newOpacity);
+        console.log(`Opacity of target ${targetId} changed to ${newOpacity}`);
+      }, delay);
     });
 
-    onUnmounted(() => {
-      console.log("Component unmounted");
-    });
+    function handleSliderChange(value: number) {
+      console.log('Slider value:', value);
+        updateOpacity(5, value);
+    }
 
     return {
       targets,
@@ -40,6 +60,8 @@ export default defineComponent({
       addTarget,
       onTargetClick,
       getTargetById,
+      selectedOpacity,
+      handleSliderChange,
     };
   },
 });

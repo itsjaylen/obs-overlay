@@ -43,36 +43,35 @@
       </v-card>
     </v-dialog>
 
-    <!-- Upload dialog TODO split up -->
+    <!-- TODO Upload dialog TODO split up -->
     <v-dialog v-model="dialog_upload" max-width="480">
-    <v-card>
-      <v-card-title>Upload item</v-card-title>
-      <v-card-text>
-        <v-file-input
-          ref="fileInput"
-          v-model="selectedFiles"
-          multiple
-          chips
-          show-size
-          accept="image/*, video/*"
-          label="File input"
-          variant="solo-filled"
-        ></v-file-input>
-      </v-card-text>
+      <v-card>
+        <v-card-title>Upload item</v-card-title>
+        <v-card-text>
+          <v-file-input
+            ref="fileInput"
+            v-model="selectedFiles"
+            multiple
+            chips
+            show-size
+            accept="image/*, video/*"
+            label="File input"
+            variant="solo-filled"
+          ></v-file-input>
+        </v-card-text>
 
-      <v-card-actions>
-        <v-spacer></v-spacer>
-        <v-btn @click="uploadFiles">Upload</v-btn>
-        <v-btn text @click="dialog_upload = false">Close</v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn @click="uploadFiles">Upload</v-btn>
+          <v-btn text @click="dialog_upload = false">Close</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
 
     <!-- Objects -->
     <v-list-item
       v-for="(item, index) in items"
       :key="index"
-      link
       :title="item.title"
     >
       <div>
@@ -122,6 +121,5 @@ import WidgetScript from "./WidgetScript.ts";
 
 export default {
   ...WidgetScript,
-  
 };
 </script>

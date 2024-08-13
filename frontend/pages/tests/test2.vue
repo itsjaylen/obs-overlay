@@ -5,15 +5,22 @@ export default {
   components: { Moveable },
   setup() {
     const onDrag = (e) => {
-      console.log(e.dist);
-    };
-    const onRender = (e) => {
-      console.log(e.transform);
-      e.target.style.cssText += e.cssText;
-    };
+  const [x, y, z] = e.dist;
+  console.log(`x: ${x}, y: ${y}, z: ${z}`);
+};
+
+
+
+const onRender = (e) => {
+  const { transform } = e;
+  const [x, y, z] = transform.match(/translate\(([^px]*)px, ([^px]*)px\)/).slice(1, 4);
+  console.log(`Transform - x: ${x}, y: ${y}, z: ${z}`);
+  e.target.style.cssText += e.cssText;
+};
+
     const clientRotation = 30;
-    const clientX = 250;
-    const clientY = 250;
+    const clientX = 0;
+    const clientY = 0;
     return { onDrag, onRender, clientRotation, clientX, clientY };
   },
 };

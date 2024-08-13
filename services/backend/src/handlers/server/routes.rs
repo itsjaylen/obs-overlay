@@ -40,18 +40,20 @@ pub async fn upload(mut payload: Multipart, req: HttpRequest) -> HttpResponse {
     let mut current_count: usize = 0;
     while current_count < max_file_count {
         if let Some(mut field) = payload.try_next().await.unwrap() {
+            // Use `and_then` to handle `Option` and then `unwrap_or` for default value
             let filename = field
                 .content_disposition()
-                .get_filename()
+                .and_then(|cd| cd.get_filename())
                 .unwrap_or("unknown_file");
+    
             let destination = format!("{}{}", dir, filename);
-
+    
             let mut saved_file = tokio_fs::File::create(&destination)
                 .await
                 .unwrap_or_else(|_| panic!("Failed to create file: {}", filename));
-
+    
             let _ = on_upload(filename.to_owned()).await;
-
+    
             while let Some(chunk) = field.try_next().await.unwrap() {
                 saved_file.write_all(&chunk).await.unwrap();
             }
@@ -60,6 +62,7 @@ pub async fn upload(mut payload: Multipart, req: HttpRequest) -> HttpResponse {
             break;
         }
     }
+    
 
     HttpResponse::Ok().finish()
 }

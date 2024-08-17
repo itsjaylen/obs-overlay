@@ -1,4 +1,5 @@
 import { defineComponent, ref, onMounted } from "vue";
+import { useTargetStore } from "@/stores/targetStore" // Ensure this import path is correct
 import { useTargets } from "../composables/useTargets";
 import { useMoveable } from "../composables/useMoveable";
 import Moveable from "vue3-moveable";
@@ -6,13 +7,9 @@ import { get_objects } from "./objects";
 
 export default defineComponent({
   components: { Moveable },
-  data() {
-    return {
-      sliderValue: 1, 
-      selected: "test",
-    };
-  },
   setup() {
+    const targetStore = useTargetStore(); // Access Pinia store here
+  const sliderValue = ref(1); // Ensure this is defined
     const {
       targets,
       objects,
@@ -26,7 +23,7 @@ export default defineComponent({
 
     const { onDrag, onScale, onRotate, toggleScalable } = useMoveable(targets);
     const selectedOpacity = ref(1);
-    const selectedTargetId = ref<number | null>(null);
+    
 
     onMounted(async () => {
       fetchObject();
@@ -44,13 +41,15 @@ export default defineComponent({
 
     function handleSliderChange(value: number) {
       console.log('Slider value:', value);
-        updateOpacity(5, value);
+      updateOpacity(5, value);
+      console.log()
     }
 
     return {
+      selected: targetStore.selectedTarget?.toString() ?? '', // Convert number to string if needed
+      sliderValue,
       targets,
       objects,
-      selectedTargetId,
       onDrag,
       onScale,
       onRotate,
@@ -62,6 +61,7 @@ export default defineComponent({
       getTargetById,
       selectedOpacity,
       handleSliderChange,
+      selectedTargetID: targetStore.selectedTargetID, // Access Pinia store property here
     };
   },
 });

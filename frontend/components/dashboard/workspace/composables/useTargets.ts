@@ -98,6 +98,12 @@ export function useTargets() {
     selectedTargetId.value = targetId;
     const imageUrl = getTargetById(targetId)?.image;
     const target = getTargetById(targetId);
+    
+
+    console.log(`Target ID: ${target?.id}`)
+
+    targetStore.setSelectedTargetID(target!.id);
+
 
     if (target) {
       console.log("Target before update:", target.opacity);
@@ -105,6 +111,7 @@ export function useTargets() {
     }
 
     const filename = imageUrl ? getFilenameFromUrl(imageUrl) : "No image found";
+
     console.log(filename);
     targetStore.setSelectedTarget(filename);
 
@@ -113,10 +120,8 @@ export function useTargets() {
     targetStore.setSelectedTargetOpacity(img?.opacity ?? 1);
     targetStore.setSelectedTargetBlur(img?.blur ?? 0);
 
-
     const temp = targetStore.selectedTarget;
-    console.log(`Temp:${temp}`)
-
+    console.log(`Temp:${temp}`);
   };
 
   const getTargetById = (targetId: number): Target | undefined => {

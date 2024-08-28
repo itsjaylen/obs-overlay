@@ -98,12 +98,17 @@ export function useTargets() {
     selectedTargetId.value = targetId;
     const imageUrl = getTargetById(targetId)?.image;
     const target = getTargetById(targetId);
-    
 
-    console.log(`Target ID: ${target?.id}`)
+    console.log(`Target ID: ${target?.id}`);
 
     targetStore.setSelectedTargetID(target!.id);
-
+    console.log(targetStore.selectedTargetID)
+    
+    if (targetStore.selectedTargetID !== null) {
+      console.log('Selected Target ID:', targetStore.selectedTargetID);
+    } else {
+      console.log('Selected Target ID is null');
+    }
 
     if (target) {
       console.log("Target before update:", target.opacity);

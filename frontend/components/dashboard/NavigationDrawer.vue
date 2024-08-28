@@ -28,7 +28,7 @@
 
     <!-- Display selected target -->
     <v-list-item>
-      <h3>Selected: {{ targetStore.selectedTarget }}</h3>
+      <h3>{{ targetStore.selectedTarget }}</h3>
     </v-list-item>
 
     <v-list-item>
@@ -92,7 +92,7 @@
       <p>Opacity: {{ targetStore.selectedTargetOpacity }}</p>
       <v-slider
         v-model="targetStore"
-        @update:modelValue="targetStore "
+        @update:modelValue="targetStore"
         min="0"
         max="1"
         step="0.01"
@@ -163,7 +163,6 @@ export default {
     function handleOverlayChange() {
       console.log("Overlay Enabled:", overlayEnabled.value);
     }
-
 
     targetStore.setSelectedTarget("None");
     targetStore.setSelectedTargetOpacity(0);

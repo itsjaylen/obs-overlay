@@ -1,5 +1,5 @@
-import { defineComponent, ref, onMounted } from "vue";
-import { useTargetStore } from "@/stores/targetStore" // Ensure this import path is correct
+import { defineComponent, ref, onMounted, computed, watch } from "vue";
+import { useTargetStore } from "@/stores/targetStore";
 import { useTargets } from "../composables/useTargets";
 import { useMoveable } from "../composables/useMoveable";
 import Moveable from "vue3-moveable";
@@ -8,8 +8,9 @@ import { get_objects } from "./objects";
 export default defineComponent({
   components: { Moveable },
   setup() {
-    const targetStore = useTargetStore(); // Access Pinia store here
-  const sliderValue = ref(1); // Ensure this is defined
+    const targetStore = useTargetStore();
+    const sliderValue = ref(1);
+
     const {
       targets,
       objects,
@@ -19,34 +20,55 @@ export default defineComponent({
       onTargetClick,
       getTargetById,
       updateOpacity,
-    } = useTargets();
+    } = useTargets();     
 
     const { onDrag, onScale, onRotate, toggleScalable } = useMoveable(targets);
     const selectedOpacity = ref(1);
-    
+
+    const selected = computed(() => {
+      return targetStore.selectedTarget ? targetStore.selectedTarget.toString() : '';
+    });
+
+    watch(() => targetStore.selectedTarget, (newValue) => {
+      console.log('selectedTarget changed:', newValue);
+    });
 
     onMounted(async () => {
       fetchObject();
       get_objects();
+      
 
+      // Load the blur from database
       const delay = 2000;
-      const targetId = 2;
+      const targetId = 0;
       const newOpacity = 0.1;
-
+    
       setTimeout(() => {
-        updateOpacity(targetId, newOpacity);
-        console.log(`Opacity of target ${targetId} changed to ${newOpacity}`);
+        if (targetStore.selectedTarget !== null) {
+          updateOpacity(targetId, newOpacity);
+          console.log(`Opacity of target ${targetId} changed to ${newOpacity}`);
+        } else {
+          console.error('Selected target is null');
+        }
       }, delay);
     });
+    
 
     function handleSliderChange(value: number) {
       console.log('Slider value:', value);
-      updateOpacity(5, value);
-      console.log()
+      console.log(targetStore.selectedTargetID);
+    
+      if (targetStore.selectedTargetID !== null) {
+        updateOpacity(targetStore.selectedTargetID, value);
+      } else {
+        console.error('Selected target ID is null');
+      }
     }
+    
+
 
     return {
-      selected: targetStore.selectedTarget?.toString() ?? '', // Convert number to string if needed
+      selected,
       sliderValue,
       targets,
       objects,
@@ -61,7 +83,7 @@ export default defineComponent({
       getTargetById,
       selectedOpacity,
       handleSliderChange,
-      selectedTargetID: targetStore.selectedTargetID, // Access Pinia store property here
+      selectedTargetID: targetStore.selectedTargetID,
     };
   },
 });
